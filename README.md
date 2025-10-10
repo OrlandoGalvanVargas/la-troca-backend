@@ -1,0 +1,1 @@
+# La Troca Backend (.NET 9 + MongoDB)
