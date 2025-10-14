@@ -1,0 +1,43 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LaTroca.API", "LaTroca.API\LaTroca.API.csproj", "{95D9B883-67EB-46D8-B172-6F365BB30895}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LaTroca.Application", "LaTroca.Application\LaTroca.Application.csproj", "{AF8EB66B-4EBB-FE65-615B-2E8F381E50C2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LaTroca.Domain", "LaTroca.Domain\LaTroca.Domain.csproj", "{FE806831-49F7-5919-5520-1BB1A55FAF30}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LaTroca.Infrastructure", "LaTroca.Infrastructure\LaTroca.Infrastructure.csproj", "{207A91EA-6951-567F-09F7-27BB77834FB9}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{95D9B883-67EB-46D8-B172-6F365BB30895}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{95D9B883-67EB-46D8-B172-6F365BB30895}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{95D9B883-67EB-46D8-B172-6F365BB30895}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{95D9B883-67EB-46D8-B172-6F365BB30895}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AF8EB66B-4EBB-FE65-615B-2E8F381E50C2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AF8EB66B-4EBB-FE65-615B-2E8F381E50C2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AF8EB66B-4EBB-FE65-615B-2E8F381E50C2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AF8EB66B-4EBB-FE65-615B-2E8F381E50C2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FE806831-49F7-5919-5520-1BB1A55FAF30}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FE806831-49F7-5919-5520-1BB1A55FAF30}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FE806831-49F7-5919-5520-1BB1A55FAF30}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FE806831-49F7-5919-5520-1BB1A55FAF30}.Release|Any CPU.Build.0 = Release|Any CPU
+		{207A91EA-6951-567F-09F7-27BB77834FB9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{207A91EA-6951-567F-09F7-27BB77834FB9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{207A91EA-6951-567F-09F7-27BB77834FB9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{207A91EA-6951-567F-09F7-27BB77834FB9}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {4F5F3D49-0512-4807-8895-FFBF381F8B8F}
+	EndGlobalSection
+EndGlobal
