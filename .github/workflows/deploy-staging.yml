@@ -14,25 +14,25 @@ jobs:
       PROJECT_PATH: Apilogin/LaTroca.API/LaTroca.API.csproj
 
     steps:
-      # 🧱 1. Checkout del código
+      # 1. Checkout del código
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # ⚙️ 2. Instalar .NET SDK
+      # 2. Instalar .NET SDK
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 9.0.x
 
-      # 📦 3. Restaurar dependencias
+      # 3. Restaurar dependencias
       - name: Restore dependencies
         run: dotnet restore ${{ env.SOLUTION_PATH }}
 
-      # 🧰 4. Compilar proyecto en Release
+      # 4. Compilar proyecto en Release
       - name: Build
         run: dotnet build ${{ env.SOLUTION_PATH }} --configuration Release --no-restore
 
-      # 🧪 5. Ejecutar pruebas (si tienes proyecto de tests)
+      # 5. Ejecutar pruebas (si tienes proyecto de tests)
       - name: Run tests
         run: |
           if [ -d "Apilogin/LaTroca.Tests" ]; then
@@ -41,12 +41,12 @@ jobs:
             echo "No test project found. Skipping tests."
           fi
 
-      # 🐳 6. Validar que Dockerfile esté correcto (opcional)
+      # 6. Validar que Dockerfile esté correcto 
       - name: Validate Dockerfile
         run: |
           docker build -t latroca-backend-test -f Apilogin/Dockerfile Apilogin
 
-      # 🚀 7. Desplegar a Render (solo si las pruebas pasan)
+      # 7. Desplegar a Render (solo si las pruebas pasan)
       - name: Deploy to Render Staging
         if: success()
         run: |
