@@ -1,4 +1,6 @@
 ﻿using BCrypt.Net;
+using LaTroca.Application.Interfaces;
+using LaTroca.Application.Services;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -16,13 +18,15 @@ namespace TorneoUniversitario.Application.Services
     public class AuthService : IAuthService
     {
         private readonly IUsuarioRepository _usuarioRepository;
+        private readonly ICloudinaryService _cloudinaryService;
         private readonly JwtSettings _jwtSettings;
-        private static readonly string[] ValidRoles = { "ADMIN", "EQUIPO", "ARBITRO", "USER" };
+        private static readonly string[] ValidRoles = { "ADMIN", "USER" };
 
-        public AuthService(IUsuarioRepository usuarioRepository, IOptions<JwtSettings> jwtSettings)
+        public AuthService(IUsuarioRepository usuarioRepository, IOptions<JwtSettings> jwtSettings, ICloudinaryService cloudinaryService)
         {
             _usuarioRepository = usuarioRepository;
             _jwtSettings = jwtSettings.Value;
+            _cloudinaryService = cloudinaryService;
         }
 
         public async Task<LoginResponse> LoginAsync(LoginRequest request)
@@ -54,11 +58,16 @@ namespace TorneoUniversitario.Application.Services
             if (!IsValidEmail(request.Email))
                 throw new ArgumentException("El formato del email es inválido.");
             if (!ValidRoles.Contains(request.Rol.ToUpper()))
-                throw new ArgumentException("Rol no existente. Válidos: ADMIN, EQUIPO, ARBITRO, USER.");
+                throw new ArgumentException("Rol no existente. Válidos: ADMIN, USER.");
 
             var existingUser = await _usuarioRepository.GetByEmailAsync(request.Email);
             if (existingUser != null)
                 throw new ArgumentException("El email ya está registrado.");
+
+            string imageUrl = string.Empty;
+
+            if (request.ImagenPerfil != null)
+                imageUrl = await _cloudinaryService.UploadImageAsync(request.ImagenPerfil, request.Email);
 
             var usuario = new Usuario
             {
@@ -67,6 +76,7 @@ namespace TorneoUniversitario.Application.Services
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
                 Role = request.Rol.ToUpper(),
                 Bio = request.Bio,
+                ProfilePicUrl = imageUrl, // nuevo campo
                 TermsAccepted = true,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,

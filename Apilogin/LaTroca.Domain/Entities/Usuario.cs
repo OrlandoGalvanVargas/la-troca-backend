@@ -49,6 +49,7 @@ namespace TorneoUniversitario.Domain.Entities
 
         [BsonElement("status")]
         public string Status { get; set; } = "active";
+
     }
 
     public class Location

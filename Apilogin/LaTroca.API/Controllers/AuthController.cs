@@ -34,7 +34,8 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("register")]
-    public async Task<ActionResult> Register([FromBody] RegisterRequest request)
+    [Consumes("multipart/form-data")]
+    public async Task<ActionResult> Register([FromForm] RegisterRequest request)
     {
         try
         {
