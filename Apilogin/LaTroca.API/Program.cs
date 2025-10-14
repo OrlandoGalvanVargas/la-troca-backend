@@ -1,3 +1,6 @@
+using LaTroca.Application.DTOs;
+using LaTroca.Application.Interfaces;
+using LaTroca.Application.Services;
 using LaTroca.Infrastructure.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -17,7 +20,7 @@ builder.Services.AddControllers();
 // Configure Swagger
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Torneo Universitario API", Version = "v1" });
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Latroca", Version = "v1" });
 
     // Configure JWT authentication in Swagger
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
@@ -46,11 +49,16 @@ builder.Services.AddSwaggerGen(c =>
 
 //dbcontext
 builder.Services.AddSingleton<MongoDbContext>();
+builder.Services.Configure<CloudinarySettings>(
+    builder.Configuration.GetSection("CloudinarySettings")
+);
 
 
 // Register repositories and services
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<ICloudinaryService, CloudinaryService>();
+
 
 // Configure JWT settings
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
