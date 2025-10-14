@@ -1,0 +1,6 @@
+@TorneoUniversitario.API_HostAddress = http://localhost:5011
+
+GET {{TorneoUniversitario.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
