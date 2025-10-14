@@ -4,29 +4,29 @@ FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /src
 
 # Copia los archivos de la solución para restaurar las dependencias (NuGet)
-# Esto optimiza el caché de Docker.
-COPY ["TorneoUniversitario.API/TorneoUniversitario.API.csproj", "TorneoUniversitario.API/"]
-COPY ["TorneoUniversitario.Application/TorneoUniversitario.Application.csproj", "TorneoUniversitario.Application/"]
-COPY ["TorneoUniversitario.Domain/TorneoUniversitario.Domain.csproj", "TorneoUniversitario.Domain/"]
-COPY ["TorneoUniversitario.Infrastructure/TorneoUniversitario.Infrastructure.csproj", "TorneoUniversitario.Infrastructure/"]
+COPY ["LaTroca.API/LaTroca.API.csproj", "LaTroca.API/"]
+COPY ["LaTroca.Application/LaTroca.Application.csproj", "LaTroca.Application/"]
+COPY ["LaTroca.Domain/LaTroca.Domain.csproj", "LaTroca.Domain/"]
+COPY ["LaTroca.Infrastructure/LaTroca.Infrastructure.csproj", "LaTroca.Infrastructure/"]
 
-# Copia el archivo de solución (.sln) y el resto del código
+# Restaura las dependencias
+RUN dotnet restore "LaTroca.API/LaTroca.API.csproj"
+
+# Copia todo el código
 COPY . .
-WORKDIR "/src/TorneoUniversitario.API"
+WORKDIR "/src/LaTroca.API"
 
-# Restaura las dependencias y publica el proyecto final
-RUN dotnet restore "TorneoUniversitario.API.csproj"
-RUN dotnet publish "TorneoUniversitario.API.csproj" -c Release -o /app/publish
+# Publica el proyecto
+RUN dotnet publish "LaTroca.API.csproj" -c Release -o /app/publish
 
 # 2. ETAPA FINAL (RUNTIME)
-# Usamos la imagen de runtime de ASP.NET 9 (mucho más pequeña y segura)
+# Imagen liviana de runtime
 FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS final
 WORKDIR /app
-# Copia los archivos publicados de la etapa 'build'
 COPY --from=build /app/publish .
 
-# Define el puerto. Render usará automáticamente $PORT.
+# Render usará automáticamente $PORT
 ENV ASPNETCORE_URLS=http://+:$PORT
 
-# Comando para iniciar la aplicación
-ENTRYPOINT ["dotnet", "TorneoUniversitario.API.dll"]
+# Comando de inicio
+ENTRYPOINT ["dotnet", "LaTroca.API.dll"]
