@@ -102,7 +102,7 @@ app.UseAuthorization();
 app.UseSwagger();
 app.UseSwaggerUI(c =>
 {
-    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Torneo Universitario API v1");
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "La Troca v1");
     c.RoutePrefix = string.Empty; // Swagger disponible en la raíz (e.g., http://localhost:5001)
 });
 

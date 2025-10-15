@@ -38,9 +38,18 @@ namespace TorneoUniversitario.Application.Services
             if (usuario == null || !BCrypt.Net.BCrypt.Verify(request.Password, usuario.PasswordHash))
                 throw new UnauthorizedAccessException("Credenciales inválidas.");
 
+            // 🚫 Nueva validación: solo usuarios activos pueden iniciar sesión
+            if (!string.Equals(usuario.Status, "active", StringComparison.OrdinalIgnoreCase))
+                throw new UnauthorizedAccessException("Tu cuenta está inactiva o ha sido suspendida. Contacta con el administrador.");
+
             var token = GenerateJwtToken(usuario);
-            return new LoginResponse { Token = token, Rol = usuario.Role };
+            return new LoginResponse
+            {
+                Token = token,
+                Rol = usuario.Role
+            };
         }
+
 
         public async Task RegisterAsync(RegisterRequest request)
         {
@@ -102,7 +111,7 @@ namespace TorneoUniversitario.Application.Services
         {
             var claims = new[]
             {
-                new Claim(JwtRegisteredClaimNames.Sub, usuario.Email),
+                new Claim(JwtRegisteredClaimNames.Email, usuario.Email),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                 new Claim(ClaimTypes.Role, usuario.Role),
                 new Claim("userId", usuario.Id)
