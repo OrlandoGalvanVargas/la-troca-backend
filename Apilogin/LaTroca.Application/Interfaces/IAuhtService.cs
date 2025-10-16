@@ -1,0 +1,17 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using TorneoUniversitario.Application.DTOs;
+using TorneoUniversitario.Domain.Entities;
+
+namespace TorneoUniversitario.Application.Interfaces
+{
+    public interface IAuthService
+    {
+        Task<LoginResponse> LoginAsync(LoginRequest request);
+        Task RegisterAsync(RegisterRequest request);
+        Task LogoutAsync();
+    }
+}
