@@ -1,0 +1,55 @@
+name: CI/CD - Production (.NET + Render)
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    env:
+      SOLUTION_PATH: Apilogin/LaTroca.sln
+      PROJECT_PATH: Apilogin/LaTroca.API/LaTroca.API.csproj
+
+    steps:
+      # 1. Checkout del código
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. Instalar .NET SDK
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+
+      # 3. Restaurar dependencias
+      - name: Restore dependencies
+        run: dotnet restore ${{ env.SOLUTION_PATH }}
+
+      # 4. Compilar en Release
+      - name: Build
+        run: dotnet build ${{ env.SOLUTION_PATH }} --configuration Release --no-restore
+
+      # 5. Ejecutar pruebas (si existen)
+      - name: Run tests
+        run: |
+          if [ -d "Apilogin/LaTroca.Tests" ]; then
+            dotnet test Apilogin/LaTroca.Tests/LaTroca.Tests.csproj --no-build --verbosity normal
+          else
+            echo "No test project found. Skipping tests."
+          fi
+
+      # 6. Validar Dockerfile
+      - name: Validate Dockerfile
+        run: docker build -t latroca-backend-prod -f Apilogin/Dockerfile Apilogin
+
+      # 7. Desplegar a Render Producción
+      - name: Deploy to Render Production
+        if: success()
+        run: |
+          echo "Triggering Render Production deploy..."
+          curl -X POST "$RENDER_DEPLOY_HOOK_PROD"
+        env:
+          RENDER_DEPLOY_HOOK_PROD: ${{ secrets.RENDER_DEPLOY_HOOK_PROD }}
