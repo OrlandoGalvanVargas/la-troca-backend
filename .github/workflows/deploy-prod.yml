@@ -29,16 +29,28 @@ jobs:
       # 4. Compilar en Release
       - name: Build
         run: dotnet build ${{ env.SOLUTION_PATH }} --configuration Release --no-restore
+        env:
+          JwtSettings__Secret: ${{ secrets.JWT_SECRET }}
+          ConnectionStrings__MongoDbConnection: ${{ secrets.MONGO_DB_CONNECTION }}
+          CloudinarySettings__ApiKey: ${{ secrets.CLOUDINARY_API_KEY }}
+          CloudinarySettings__ApiSecret: ${{ secrets.CLOUDINARY_API_SECRET }}
+          CloudinarySettings__CloudName: "dr4vyv3ar"
 
       # 5. Ejecutar pruebas (si existen)
       - name: Run tests
         run: |
           if [ -d "Apilogin/LaTroca.Tests" ]; then
-            dotnet test Apilogin/LaTroca.Tests/LaTroca.Tests.csproj --no-build --verbosity normal
+            echo "Running tests..."
+            dotnet test Apilogin/LaTroca.Tests/LaTroca.Tests.csproj --no-build --configuration Release --verbosity normal
           else
             echo "No test project found. Skipping tests."
           fi
-
+        env:
+          JwtSettings__Secret: ${{ secrets.JWT_SECRET }}
+          ConnectionStrings__MongoDbConnection: ${{ secrets.MONGO_DB_CONNECTION }}
+          CloudinarySettings__ApiKey: ${{ secrets.CLOUDINARY_API_KEY }}
+          CloudinarySettings__ApiSecret: ${{ secrets.CLOUDINARY_API_SECRET }}
+          CloudinarySettings__CloudName: "dr4vyv3ar"
       # 6. Validar Dockerfile
       - name: Validate Dockerfile
         run: docker build -t latroca-backend-prod -f Apilogin/Dockerfile Apilogin

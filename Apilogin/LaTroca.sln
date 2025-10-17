@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LaTroca.Domain", "LaTroca.D
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LaTroca.Infrastructure", "LaTroca.Infrastructure\LaTroca.Infrastructure.csproj", "{207A91EA-6951-567F-09F7-27BB77834FB9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LaTroca.Tests", "LaTroca.Tests\LaTroca.Tests.csproj", "{F3748402-021C-AC2F-2AA7-C0CB3970EFB3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{207A91EA-6951-567F-09F7-27BB77834FB9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{207A91EA-6951-567F-09F7-27BB77834FB9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{207A91EA-6951-567F-09F7-27BB77834FB9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F3748402-021C-AC2F-2AA7-C0CB3970EFB3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F3748402-021C-AC2F-2AA7-C0CB3970EFB3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F3748402-021C-AC2F-2AA7-C0CB3970EFB3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F3748402-021C-AC2F-2AA7-C0CB3970EFB3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
