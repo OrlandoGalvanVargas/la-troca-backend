@@ -8,5 +8,7 @@ namespace TorneoUniversitario.Application.DTOs
 {
     public record LoginResponse { 
         public string Token { get; init; } = string.Empty; 
-        public string Rol { get; init; } = string.Empty; }
+        public string Rol { get; init; } = string.Empty;
+        public string UserId { get; set; }
+    }
 }

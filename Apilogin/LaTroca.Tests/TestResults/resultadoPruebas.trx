@@ -1,0 +1,101 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TestRun id="ee373627-4159-4f61-89b3-44a34d28cf61" name="52773@ANGEL-LEOBARDO 2025-10-16 18:05:19" runUser="ANGEL-LEOBARDO\52773" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <Times creation="2025-10-16T18:05:19.5753439-06:00" queuing="2025-10-16T18:05:19.5753446-06:00" start="2025-10-16T18:05:15.0205747-06:00" finish="2025-10-16T18:05:33.9913330-06:00" />
+  <TestSettings name="default" id="6518222d-abf4-4211-aec9-501b3a509cf5">
+    <Deployment runDeploymentRoot="52773_ANGEL-LEOBARDO_2025-10-16_18_05_19" />
+  </TestSettings>
+  <Results>
+    <UnitTestResult executionId="192481fd-077e-48c0-aff2-9aabe7368077" testId="692d2e91-ba84-d510-2b57-c359b7710701" testName="LaTroca.Tests.Integration.AuthIntegrationTests.Logout_ReturnsOk" computerName="ANGEL-LEOBARDO" duration="00:00:00.0455388" startTime="2025-10-16T18:05:33.8314104-06:00" endTime="2025-10-16T18:05:33.8314109-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="192481fd-077e-48c0-aff2-9aabe7368077" />
+    <UnitTestResult executionId="9236e15a-c828-4b77-af2f-589b077aa32d" testId="5e5dc3ba-04cb-9e3e-1a2b-8c19b935503c" testName="LaTroca.Tests.Controllers.AuthControllerTests.Register_ReturnsCreated_WhenSuccessful" computerName="ANGEL-LEOBARDO" duration="00:00:00.0101911" startTime="2025-10-16T18:05:17.2408791-06:00" endTime="2025-10-16T18:05:17.2408796-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="9236e15a-c828-4b77-af2f-589b077aa32d" />
+    <UnitTestResult executionId="e2cbd72a-bc83-4b68-8b40-4dc56d545022" testId="46dc18ed-6202-9b7b-d6aa-a5486d4f7126" testName="LaTroca.Tests.Integration.AuthIntegrationTests.Register_ReturnsCreated_WhenDataIsValid" computerName="ANGEL-LEOBARDO" duration="00:00:16.0670544" startTime="2025-10-16T18:05:33.3621605-06:00" endTime="2025-10-16T18:05:33.3621609-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="e2cbd72a-bc83-4b68-8b40-4dc56d545022">
+      <Output>
+        <ErrorInfo>
+          <Message>Assert.Equal() Failure: Values differ&#xD;
+Expected: Created&#xD;
+Actual:   BadRequest</Message>
+          <StackTrace>   at LaTroca.Tests.Integration.AuthIntegrationTests.Register_ReturnsCreated_WhenDataIsValid() in C:\Users\52773\OneDrive\Documentos\Api\login\Apilogin\LaTroca.Tests\Integration\AuthIntegrationTests.cs:line 62&#xD;
+--- End of stack trace from previous location ---</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="5d412869-f81d-47d2-af61-c722c4a74dd2" testId="72ca677f-1440-3f8d-1cf2-36a9cef9c6d8" testName="LaTroca.Tests.UnitTest1.Test1" computerName="ANGEL-LEOBARDO" duration="00:00:00.0051517" startTime="2025-10-16T18:05:17.0108234-06:00" endTime="2025-10-16T18:05:17.0108607-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="5d412869-f81d-47d2-af61-c722c4a74dd2" />
+    <UnitTestResult executionId="ae77f9fa-a748-4db6-8cb2-826d29517309" testId="8d6dcdac-a94e-92b1-42b4-87bf826c28aa" testName="LaTroca.Tests.Controllers.AuthControllerTests.Login_ReturnsOk_WhenCredentialsAreValid" computerName="ANGEL-LEOBARDO" duration="00:00:00.0324293" startTime="2025-10-16T18:05:17.2304593-06:00" endTime="2025-10-16T18:05:17.2304598-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="ae77f9fa-a748-4db6-8cb2-826d29517309" />
+    <UnitTestResult executionId="55cadeae-2a6e-46f3-86ed-a7ea775eca16" testId="f94b84c1-4f5d-0100-eb15-68dfb98e3837" testName="LaTroca.Tests.Controllers.AuthControllerTests.Logout_ReturnsOk" computerName="ANGEL-LEOBARDO" duration="00:00:00.1766502" startTime="2025-10-16T18:05:17.1978950-06:00" endTime="2025-10-16T18:05:17.1978958-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="55cadeae-2a6e-46f3-86ed-a7ea775eca16" />
+    <UnitTestResult executionId="6c3f02e7-6b36-4e39-95cd-21d145d7ace8" testId="b093ae5d-62ce-dd4b-245d-91439e4c0a5a" testName="LaTroca.Tests.Integration.AuthIntegrationTests.Login_ReturnsUnauthorized_WhenInvalidCredentials" computerName="ANGEL-LEOBARDO" duration="00:00:00.4141779" startTime="2025-10-16T18:05:33.7834455-06:00" endTime="2025-10-16T18:05:33.7834459-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="6c3f02e7-6b36-4e39-95cd-21d145d7ace8" />
+    <UnitTestResult executionId="c3c5b544-b7ff-40ab-b778-f6d801a5cbfa" testId="c4b3672a-f0fc-f216-1907-1fc3637dc04a" testName="LaTroca.Tests.Controllers.AuthControllerTests.Login_ReturnsBadRequest_WhenArgumentExceptionThrown" computerName="ANGEL-LEOBARDO" duration="00:00:00.0164442" startTime="2025-10-16T18:05:17.2576666-06:00" endTime="2025-10-16T18:05:17.2576671-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="c3c5b544-b7ff-40ab-b778-f6d801a5cbfa" />
+  </Results>
+  <TestDefinitions>
+    <UnitTest name="LaTroca.Tests.Controllers.AuthControllerTests.Login_ReturnsOk_WhenCredentialsAreValid" storage="c:\users\52773\onedrive\documentos\api\login\apilogin\latroca.tests\bin\debug\net9.0\latroca.tests.dll" id="8d6dcdac-a94e-92b1-42b4-87bf826c28aa">
+      <Execution id="ae77f9fa-a748-4db6-8cb2-826d29517309" />
+      <TestMethod codeBase="C:\Users\52773\OneDrive\Documentos\Api\login\Apilogin\LaTroca.Tests\bin\Debug\net9.0\LaTroca.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="LaTroca.Tests.Controllers.AuthControllerTests" name="Login_ReturnsOk_WhenCredentialsAreValid" />
+    </UnitTest>
+    <UnitTest name="LaTroca.Tests.UnitTest1.Test1" storage="c:\users\52773\onedrive\documentos\api\login\apilogin\latroca.tests\bin\debug\net9.0\latroca.tests.dll" id="72ca677f-1440-3f8d-1cf2-36a9cef9c6d8">
+      <Execution id="5d412869-f81d-47d2-af61-c722c4a74dd2" />
+      <TestMethod codeBase="C:\Users\52773\OneDrive\Documentos\Api\login\Apilogin\LaTroca.Tests\bin\Debug\net9.0\LaTroca.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="LaTroca.Tests.UnitTest1" name="Test1" />
+    </UnitTest>
+    <UnitTest name="LaTroca.Tests.Controllers.AuthControllerTests.Register_ReturnsCreated_WhenSuccessful" storage="c:\users\52773\onedrive\documentos\api\login\apilogin\latroca.tests\bin\debug\net9.0\latroca.tests.dll" id="5e5dc3ba-04cb-9e3e-1a2b-8c19b935503c">
+      <Execution id="9236e15a-c828-4b77-af2f-589b077aa32d" />
+      <TestMethod codeBase="C:\Users\52773\OneDrive\Documentos\Api\login\Apilogin\LaTroca.Tests\bin\Debug\net9.0\LaTroca.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="LaTroca.Tests.Controllers.AuthControllerTests" name="Register_ReturnsCreated_WhenSuccessful" />
+    </UnitTest>
+    <UnitTest name="LaTroca.Tests.Integration.AuthIntegrationTests.Logout_ReturnsOk" storage="c:\users\52773\onedrive\documentos\api\login\apilogin\latroca.tests\bin\debug\net9.0\latroca.tests.dll" id="692d2e91-ba84-d510-2b57-c359b7710701">
+      <Execution id="192481fd-077e-48c0-aff2-9aabe7368077" />
+      <TestMethod codeBase="C:\Users\52773\OneDrive\Documentos\Api\login\Apilogin\LaTroca.Tests\bin\Debug\net9.0\LaTroca.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="LaTroca.Tests.Integration.AuthIntegrationTests" name="Logout_ReturnsOk" />
+    </UnitTest>
+    <UnitTest name="LaTroca.Tests.Integration.AuthIntegrationTests.Register_ReturnsCreated_WhenDataIsValid" storage="c:\users\52773\onedrive\documentos\api\login\apilogin\latroca.tests\bin\debug\net9.0\latroca.tests.dll" id="46dc18ed-6202-9b7b-d6aa-a5486d4f7126">
+      <Execution id="e2cbd72a-bc83-4b68-8b40-4dc56d545022" />
+      <TestMethod codeBase="C:\Users\52773\OneDrive\Documentos\Api\login\Apilogin\LaTroca.Tests\bin\Debug\net9.0\LaTroca.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="LaTroca.Tests.Integration.AuthIntegrationTests" name="Register_ReturnsCreated_WhenDataIsValid" />
+    </UnitTest>
+    <UnitTest name="LaTroca.Tests.Controllers.AuthControllerTests.Login_ReturnsBadRequest_WhenArgumentExceptionThrown" storage="c:\users\52773\onedrive\documentos\api\login\apilogin\latroca.tests\bin\debug\net9.0\latroca.tests.dll" id="c4b3672a-f0fc-f216-1907-1fc3637dc04a">
+      <Execution id="c3c5b544-b7ff-40ab-b778-f6d801a5cbfa" />
+      <TestMethod codeBase="C:\Users\52773\OneDrive\Documentos\Api\login\Apilogin\LaTroca.Tests\bin\Debug\net9.0\LaTroca.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="LaTroca.Tests.Controllers.AuthControllerTests" name="Login_ReturnsBadRequest_WhenArgumentExceptionThrown" />
+    </UnitTest>
+    <UnitTest name="LaTroca.Tests.Integration.AuthIntegrationTests.Login_ReturnsUnauthorized_WhenInvalidCredentials" storage="c:\users\52773\onedrive\documentos\api\login\apilogin\latroca.tests\bin\debug\net9.0\latroca.tests.dll" id="b093ae5d-62ce-dd4b-245d-91439e4c0a5a">
+      <Execution id="6c3f02e7-6b36-4e39-95cd-21d145d7ace8" />
+      <TestMethod codeBase="C:\Users\52773\OneDrive\Documentos\Api\login\Apilogin\LaTroca.Tests\bin\Debug\net9.0\LaTroca.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="LaTroca.Tests.Integration.AuthIntegrationTests" name="Login_ReturnsUnauthorized_WhenInvalidCredentials" />
+    </UnitTest>
+    <UnitTest name="LaTroca.Tests.Controllers.AuthControllerTests.Logout_ReturnsOk" storage="c:\users\52773\onedrive\documentos\api\login\apilogin\latroca.tests\bin\debug\net9.0\latroca.tests.dll" id="f94b84c1-4f5d-0100-eb15-68dfb98e3837">
+      <Execution id="55cadeae-2a6e-46f3-86ed-a7ea775eca16" />
+      <TestMethod codeBase="C:\Users\52773\OneDrive\Documentos\Api\login\Apilogin\LaTroca.Tests\bin\Debug\net9.0\LaTroca.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="LaTroca.Tests.Controllers.AuthControllerTests" name="Logout_ReturnsOk" />
+    </UnitTest>
+  </TestDefinitions>
+  <TestEntries>
+    <TestEntry testId="692d2e91-ba84-d510-2b57-c359b7710701" executionId="192481fd-077e-48c0-aff2-9aabe7368077" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="5e5dc3ba-04cb-9e3e-1a2b-8c19b935503c" executionId="9236e15a-c828-4b77-af2f-589b077aa32d" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="46dc18ed-6202-9b7b-d6aa-a5486d4f7126" executionId="e2cbd72a-bc83-4b68-8b40-4dc56d545022" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="72ca677f-1440-3f8d-1cf2-36a9cef9c6d8" executionId="5d412869-f81d-47d2-af61-c722c4a74dd2" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="8d6dcdac-a94e-92b1-42b4-87bf826c28aa" executionId="ae77f9fa-a748-4db6-8cb2-826d29517309" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="f94b84c1-4f5d-0100-eb15-68dfb98e3837" executionId="55cadeae-2a6e-46f3-86ed-a7ea775eca16" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="b093ae5d-62ce-dd4b-245d-91439e4c0a5a" executionId="6c3f02e7-6b36-4e39-95cd-21d145d7ace8" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="c4b3672a-f0fc-f216-1907-1fc3637dc04a" executionId="c3c5b544-b7ff-40ab-b778-f6d801a5cbfa" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+  </TestEntries>
+  <TestLists>
+    <TestList name="Resultados sin formato de lista" id="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestList name="Todos los resultados cargados" id="19431567-8539-422a-85d7-44ee4e166bda" />
+  </TestLists>
+  <ResultSummary outcome="Failed">
+    <Counters total="8" executed="8" passed="7" failed="1" error="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" completed="0" inProgress="0" pending="0" />
+    <Output>
+      <StdOut>[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v2.8.2+699d445a1a (64-bit .NET 9.0.6)&#xD;
+[xUnit.net 00:00:00.25]   Discovering: LaTroca.Tests&#xD;
+[xUnit.net 00:00:00.41]   Discovered:  LaTroca.Tests&#xD;
+[xUnit.net 00:00:00.41]   Starting:    LaTroca.Tests&#xD;
+?? ERROR en AuthController: Datos inv�lidos&#xD;
+?? Respuesta del servidor:&#xD;
+El email ya est� registrado.&#xD;
+[xUnit.net 00:00:16.92]       Assert.Equal() Failure: Values differ&#xD;
+[xUnit.net 00:00:16.92]       Expected: Created&#xD;
+[xUnit.net 00:00:16.92]       Actual:   BadRequest&#xD;
+[xUnit.net 00:00:16.92]       Stack Trace:&#xD;
+[xUnit.net 00:00:16.93]         C:\Users\52773\OneDrive\Documentos\Api\login\Apilogin\LaTroca.Tests\Integration\AuthIntegrationTests.cs(62,0): at LaTroca.Tests.Integration.AuthIntegrationTests.Register_ReturnsCreated_WhenDataIsValid()&#xD;
+[xUnit.net 00:00:16.93]         --- End of stack trace from previous location ---&#xD;
+?? ERROR en AuthController: Credenciales inv�lidas.&#xD;
+[xUnit.net 00:00:17.42]   Finished:    LaTroca.Tests&#xD;
+</StdOut>
+    </Output>
+    <RunInfos>
+      <RunInfo computerName="ANGEL-LEOBARDO" outcome="Error" timestamp="2025-10-16T18:05:33.3580239-06:00">
+        <Text>[xUnit.net 00:00:16.92]     LaTroca.Tests.Integration.AuthIntegrationTests.Register_ReturnsCreated_WhenDataIsValid [FAIL]</Text>
+      </RunInfo>
+    </RunInfos>
+  </ResultSummary>
+</TestRun>

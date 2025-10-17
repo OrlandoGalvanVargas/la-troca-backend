@@ -25,10 +25,12 @@ public class AuthController : ControllerBase
         }
         catch (ArgumentException ex)
         {
+            Console.WriteLine($"🔥 ERROR en AuthController: {ex.Message}");
             return BadRequest(ex.Message);
         }
         catch (UnauthorizedAccessException ex)
         {
+            Console.WriteLine($"🔥 ERROR en AuthController: {ex.Message}");
             return Unauthorized(ex.Message);
         }
     }
@@ -48,6 +50,7 @@ public class AuthController : ControllerBase
         }
         catch (Exception ex)
         {
+            Console.WriteLine($"🔥 ERROR en AuthController: {ex.Message}");
             return StatusCode(500, $"Error interno del servidor: {ex.Message}");
         }
     }
