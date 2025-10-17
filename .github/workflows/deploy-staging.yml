@@ -36,7 +36,8 @@ jobs:
       - name: Run tests
         run: |
           if [ -d "Apilogin/LaTroca.Tests" ]; then
-            dotnet test Apilogin/LaTroca.Tests/LaTroca.Tests.csproj --no-build --verbosity normal
+            echo "Running tests..."
+            dotnet test Apilogin/LaTroca.Tests/LaTroca.Tests.csproj --no-build --configuration Release --verbosity normal
           else
             echo "No test project found. Skipping tests."
           fi
