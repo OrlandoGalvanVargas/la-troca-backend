@@ -1,7 +1,9 @@
 using LaTroca.Application.DTOs;
 using LaTroca.Application.Interfaces;
 using LaTroca.Application.Services;
+using LaTroca.Domain.Interfaces;
 using LaTroca.Infrastructure.Data;
+using LaTroca.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -58,6 +60,9 @@ builder.Services.Configure<CloudinarySettings>(
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ICloudinaryService, CloudinaryService>();
+builder.Services.AddScoped<IPostRepository, PostRepository>();
+builder.Services.AddScoped<IPostService, PostService>();
+
 
 
 // Configure JWT settings

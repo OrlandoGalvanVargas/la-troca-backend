@@ -23,5 +23,7 @@ namespace LaTroca.Infrastructure.Data
         }
 
         public IMongoCollection<Usuario> Usuarios => _database.GetCollection<Usuario>("users");
+        public IMongoCollection<Post> Posts => _database.GetCollection<Post>("posts");
+
     }
 }
