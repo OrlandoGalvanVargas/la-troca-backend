@@ -14,7 +14,6 @@ namespace LaTroca.Tests.Integration
 
         public AuthIntegrationTests(WebApplicationFactory<Program> factory)
         {
-            // Crea un cliente HTTP de prueba para la API
             _client = factory.CreateClient();
         }
 
@@ -63,6 +62,31 @@ namespace LaTroca.Tests.Integration
             Assert.Contains("Usuario creado correctamente", content);
         }
 
+        [Fact]
+        public async Task Register_ReturnsCreated_WithLocation_WhenDataIsValid()
+        {
+            // Arrange
+            var request = new MultipartFormDataContent();
+            request.Add(new StringContent("Nombre Prueba Con Ubicación"), "Nombre");
+            request.Add(new StringContent("testuser2@test.com"), "Email");
+            request.Add(new StringContent("12345678"), "Password");
+            request.Add(new StringContent("USER"), "Rol");
+            request.Add(new StringContent("Usuario de prueba con ubicación"), "Bio");
+            request.Add(new StringContent("19.432608"), "Location.Latitude");
+            request.Add(new StringContent("-99.133209"), "Location.Longitude");
+            request.Add(new StringContent("Ciudad de México, Condesa"), "Location.Manual");
+
+            // Act
+            var response = await _client.PostAsync("/api/auth/register", request);
+            var content = await response.Content.ReadAsStringAsync();
+
+            Console.WriteLine("🔎 Respuesta del servidor:");
+            Console.WriteLine(content);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+            Assert.Contains("Usuario creado correctamente", content);
+        }
 
         [Fact]
         public async Task Logout_ReturnsOk()
@@ -72,6 +96,8 @@ namespace LaTroca.Tests.Integration
 
             // Assert
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            var content = await response.Content.ReadAsStringAsync();
+            Assert.Contains("Logout exitoso", content);
         }
     }
 }
