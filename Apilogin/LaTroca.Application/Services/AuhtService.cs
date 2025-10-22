@@ -1,6 +1,5 @@
 ﻿using BCrypt.Net;
 using LaTroca.Application.Interfaces;
-using LaTroca.Application.Services;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -38,7 +37,6 @@ namespace TorneoUniversitario.Application.Services
             if (usuario == null || !BCrypt.Net.BCrypt.Verify(request.Password, usuario.PasswordHash))
                 throw new UnauthorizedAccessException("Credenciales inválidas.");
 
-            // 🚫 Nueva validación: solo usuarios activos pueden iniciar sesión
             if (!string.Equals(usuario.Status, "active", StringComparison.OrdinalIgnoreCase))
                 throw new UnauthorizedAccessException("Tu cuenta está inactiva o ha sido suspendida. Contacta con el administrador.");
 
@@ -46,10 +44,10 @@ namespace TorneoUniversitario.Application.Services
             return new LoginResponse
             {
                 Token = token,
-                Rol = usuario.Role
+                Rol = usuario.Role,
+                UserId = usuario.Id // Corregir para incluir userId
             };
         }
-
 
         public async Task RegisterAsync(RegisterRequest request)
         {
@@ -74,7 +72,6 @@ namespace TorneoUniversitario.Application.Services
                 throw new ArgumentException("El email ya está registrado.");
 
             string imageUrl = string.Empty;
-
             if (request.ImagenPerfil != null)
                 imageUrl = await _cloudinaryService.UploadImageAsync(request.ImagenPerfil, request.Email);
 
@@ -85,7 +82,15 @@ namespace TorneoUniversitario.Application.Services
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
                 Role = request.Rol.ToUpper(),
                 Bio = request.Bio,
-                ProfilePicUrl = imageUrl, // nuevo campo
+                ProfilePicUrl = imageUrl,
+                Location = request.Location != null
+                    ? new Location
+                    {
+                        Latitude = request.Location.Latitude,
+                        Longitude = request.Location.Longitude,
+                        Manual = request.Location.Manual
+                    }
+                    : null,
                 TermsAccepted = true,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
@@ -97,7 +102,6 @@ namespace TorneoUniversitario.Application.Services
 
         public async Task LogoutAsync()
         {
-            // En JWT, el logout es responsabilidad del cliente (borrar token del localStorage o header).
             await Task.CompletedTask;
         }
 
@@ -132,7 +136,8 @@ namespace TorneoUniversitario.Application.Services
         }
     }
 
-    public class JwtSettings
+
+public class JwtSettings
     {
         public string Issuer { get; set; } = string.Empty;
         public string Audience { get; set; } = string.Empty;

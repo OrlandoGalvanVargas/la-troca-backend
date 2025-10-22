@@ -16,5 +16,13 @@ namespace TorneoUniversitario.Application.DTOs
         public string Bio { get; init; } = string.Empty;
         public IFormFile? ImagenPerfil { get; init; }
 
+        public LocationRequest? Location { get; init; } // Nuevo campo para ubicación
+    }
+
+    public record LocationRequest
+    {
+        public double Latitude { get; init; }
+        public double Longitude { get; init; }
+        public string Manual { get; init; } = string.Empty;
     }
 }
