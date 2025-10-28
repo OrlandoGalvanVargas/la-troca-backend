@@ -37,6 +37,7 @@ jobs:
           CloudinarySettings__ApiKey: ${{ secrets.CLOUDINARY_API_KEY }}
           CloudinarySettings__ApiSecret: ${{ secrets.CLOUDINARY_API_SECRET }}
           CloudinarySettings__CloudName: "dr4vyv3ar"
+          HuggingFace__ApiKey: ${{ secrets.HUGGINGFACE_API_KEY }}
       # 5. Ejecutar pruebas (si tienes proyecto de tests)
       - name: Run tests
         run: |
@@ -52,6 +53,8 @@ jobs:
           CloudinarySettings__ApiKey: ${{ secrets.CLOUDINARY_API_KEY }}
           CloudinarySettings__ApiSecret: ${{ secrets.CLOUDINARY_API_SECRET }}
           CloudinarySettings__CloudName: "dr4vyv3ar"
+          HuggingFace__ApiKey: ${{ secrets.HUGGINGFACE_API_KEY }}
+
 
       # 6. Validar que Dockerfile esté correcto 
       - name: Validate Dockerfile
