@@ -10,6 +10,7 @@ namespace TorneoUniversitario.Application.Interfaces
 {
     public interface IAuthService
     {
+        Task<LoginResponse> LoginWithGoogleAsync(string googleIdToken);
         Task<LoginResponse> LoginAsync(LoginRequest request);
         Task RegisterAsync(RegisterRequest request);
         Task LogoutAsync();

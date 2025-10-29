@@ -18,6 +18,26 @@ namespace TorneoUniversitario.API.Controllers
             _imageModerationService = imageModerationService;
         }
 
+        [HttpPost("login-google")]
+        public async Task<IActionResult> LoginWithGoogle([FromBody] GoogleLoginRequest request)
+        {
+            try
+            {
+                var response = await _authService.LoginWithGoogleAsync(request.IdToken);
+                return Ok(response);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(new { message = ex.Message });
+            }
+        }
+
+        // DTO
+        public class GoogleLoginRequest
+        {
+            public string IdToken { get; set; }
+        }
+
         [HttpPost("login")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
