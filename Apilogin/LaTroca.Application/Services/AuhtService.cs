@@ -16,6 +16,7 @@ namespace TorneoUniversitario.Application.Services
 {
     public class AuthService : IAuthService
     {
+
         private readonly IUsuarioRepository _usuarioRepository;
         private readonly ICloudinaryService _cloudinaryService;
         private readonly JwtSettings _jwtSettings;

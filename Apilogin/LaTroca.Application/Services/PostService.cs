@@ -1,7 +1,6 @@
 ﻿using LaTroca.Application.Interfaces;
 using LaTroca.Domain.Interfaces;
 using TorneoUniversitario.Application.DTOs;
-using TorneoUniversitario.Application.Interfaces;
 using TorneoUniversitario.Domain.Entities;
 using TorneoUniversitario.Domain.Interfaces;
 

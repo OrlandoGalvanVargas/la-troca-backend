@@ -1,26 +1,27 @@
 ﻿using LaTroca.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
-using System.Threading.Tasks;
 using TorneoUniversitario.Application.DTOs;
-using TorneoUniversitario.Application.Interfaces;
 
 namespace TorneoUniversitario.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize] // Requiere autenticación JWT
+    [Authorize] 
     public class PostController : ControllerBase
     {
         private readonly IPostService _postService;
+        private readonly ITextModerationService _textModerationService;
+        private readonly IImageModerationService _imageModerationService;
 
-        public PostController(IPostService postService)
+        public PostController(IPostService postService, ITextModerationService textModerationService, IImageModerationService imageModerationService)
         {
             _postService = postService;
+            _textModerationService = textModerationService;
+            _imageModerationService = imageModerationService;
         }
 
-        [HttpPost]
+        [HttpPost("CrearPublicacion")]
         [Consumes("multipart/form-data")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -34,6 +35,39 @@ namespace TorneoUniversitario.API.Controllers
                 if (string.IsNullOrEmpty(userId))
                     return Unauthorized(new { Message = "Usuario no identificado." });
 
+         
+                var camposTexto = new Dictionary<string, string>
+                {
+                    { "Titulo", request.Titulo },
+                    { "Descripcion", request.Descripcion },
+                    { "Categoria", request.Categoria },
+                    { "Necesidad", request.Necesidad }
+                };
+
+                
+                foreach (var campo in camposTexto)
+                {
+                    if (!string.IsNullOrWhiteSpace(campo.Value))
+                    {
+                        var resultado = await _textModerationService.AnalyzeTextAsync(campo.Value);
+                        if (!resultado.IsSafe)
+                        {
+                            return BadRequest(new { Message = $"Texto inapropiado detectado en el campo {campo.Key}: {campo.Value}" });
+                        }
+                    }
+                }
+
+            
+                foreach (var foto in request.Fotos)
+                {
+                    var imageModerationResult = await _imageModerationService.AnalyzeImageAsync(foto);
+                    if (!imageModerationResult.IsSafe)
+                    {
+                        return BadRequest(new { Message = $"Imagen inapropiada detectada en la foto: {foto.FileName}" });
+                    }
+                }
+
+           
                 var response = await _postService.CrearPublicacionAsync(userId, request);
                 return CreatedAtAction(
                     nameof(ObtenerPublicacionPorId),
@@ -54,6 +88,7 @@ namespace TorneoUniversitario.API.Controllers
                 return StatusCode(500, new { Message = $"Error interno del servidor: {ex.Message}" });
             }
         }
+
 
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -121,6 +156,38 @@ namespace TorneoUniversitario.API.Controllers
                 if (string.IsNullOrEmpty(userId))
                     return Unauthorized(new { Message = "Usuario no identificado." });
 
+                
+                var camposTexto = new Dictionary<string, string>
+                {
+                    { "Titulo", request.Titulo },
+                    { "Descripcion", request.Descripcion },
+                    { "Categoria", request.Categoria },
+                    { "Necesidad", request.Necesidad }
+                };
+
+                
+                foreach (var campo in camposTexto)
+                {
+                    if (!string.IsNullOrWhiteSpace(campo.Value))
+                    {
+                        var resultado = await _textModerationService.AnalyzeTextAsync(campo.Value);
+                        if (!resultado.IsSafe)
+                        {
+                            return BadRequest(new { Message = $"Texto inapropiado detectado en el campo {campo.Key}: {campo.Value}" });
+                        }
+                    }
+                }
+
+                
+                foreach (var foto in request.Fotos)
+                {
+                    var imageModerationResult = await _imageModerationService.AnalyzeImageAsync(foto);
+                    if (!imageModerationResult.IsSafe)
+                    {
+                        return BadRequest(new { Message = $"Imagen inapropiada detectada en la foto: {foto.FileName}" });
+                    }
+                }
+
                 await _postService.ActualizarPublicacionAsync(id, userId, request);
                 return Ok(new { Message = "Publicación actualizada correctamente." });
             }
@@ -137,6 +204,7 @@ namespace TorneoUniversitario.API.Controllers
                 return StatusCode(500, new { Message = $"Error interno del servidor: {ex.Message}" });
             }
         }
+
 
         [HttpDelete("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]

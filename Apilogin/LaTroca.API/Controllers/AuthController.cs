@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using LaTroca.Application.Interfaces;
+using Microsoft.AspNetCore.Mvc;
 using TorneoUniversitario.Application.DTOs;
 using TorneoUniversitario.Application.Interfaces;
 
@@ -9,10 +10,12 @@ namespace TorneoUniversitario.API.Controllers
     public class AuthController : ControllerBase
     {
         private readonly IAuthService _authService;
+        private readonly IImageModerationService _imageModerationService;
 
-        public AuthController(IAuthService authService)
+        public AuthController(IAuthService authService, IImageModerationService imageModerationService)
         {
             _authService = authService;
+            _imageModerationService = imageModerationService;
         }
 
         [HttpPost("login")]
@@ -37,7 +40,6 @@ namespace TorneoUniversitario.API.Controllers
                 return Unauthorized(new { Message = ex.Message });
             }
         }
-
         [HttpPost("register")]
         [Consumes("multipart/form-data")]
         [ProducesResponseType(StatusCodes.Status201Created)]
@@ -47,7 +49,23 @@ namespace TorneoUniversitario.API.Controllers
         {
             try
             {
+             
+                if (request.ImagenPerfil != null && request.ImagenPerfil.Length > 0)
+                {
+                    var moderationResult = await _imageModerationService.AnalyzeImageAsync(request.ImagenPerfil);
+
+                    if (!moderationResult.IsSafe)
+                    {
+                        return BadRequest(new
+                        {
+                            Message = "La imagen de perfil no es apropiada.",
+                           
+                        });
+                    }
+                }
+
                 await _authService.RegisterAsync(request);
+
                 return StatusCode(201, new { Message = "Usuario creado correctamente." });
             }
             catch (ArgumentException ex)

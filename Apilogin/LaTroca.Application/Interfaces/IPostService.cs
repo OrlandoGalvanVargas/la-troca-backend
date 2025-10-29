@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TorneoUniversitario.Application.DTOs;
+﻿using TorneoUniversitario.Application.DTOs;
 
 namespace LaTroca.Application.Interfaces
 {

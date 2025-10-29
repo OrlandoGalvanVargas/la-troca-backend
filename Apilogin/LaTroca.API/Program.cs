@@ -2,10 +2,10 @@ using LaTroca.Application.DTOs;
 using LaTroca.Application.Interfaces;
 using LaTroca.Application.Services;
 using LaTroca.Domain.Interfaces;
+using LaTroca.Infrastructure;
 using LaTroca.Infrastructure.Data;
 using LaTroca.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
@@ -18,6 +18,9 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllers();
+builder.Services.AddInfrastructure();
+
+builder.Services.AddEndpointsApiExplorer();
 
 // Configure Swagger
 builder.Services.AddSwaggerGen(c =>
