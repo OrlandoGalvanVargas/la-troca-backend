@@ -1,5 +1,6 @@
-﻿using LaTroca.Moderacion.Application.DTOs;
-using LaTroca.Moderacion.Application.Interfaces;
+﻿
+using LaTroca.Application.DTOs;
+using LaTroca.Application.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using System.Net.Http.Headers;

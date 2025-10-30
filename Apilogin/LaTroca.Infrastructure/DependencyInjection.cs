@@ -1,5 +1,6 @@
 ﻿using LaTroca.Application.Interfaces;
 using LaTroca.Infrastructure.Services;
+using LaTroca.Moderacion.Infrastructure.Services;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace LaTroca.Infrastructure
