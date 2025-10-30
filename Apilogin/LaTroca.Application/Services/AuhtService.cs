@@ -1,4 +1,5 @@
 ﻿using BCrypt.Net;
+using Google.Apis.Auth;
 using LaTroca.Application.Interfaces;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -27,6 +28,43 @@ namespace TorneoUniversitario.Application.Services
             _usuarioRepository = usuarioRepository;
             _jwtSettings = jwtSettings.Value;
             _cloudinaryService = cloudinaryService;
+        }
+
+        public async Task<LoginResponse> LoginWithGoogleAsync(string googleIdToken)
+        {
+            try
+            {
+                // 1. Validar el token de Google (usando Google.Apis.Auth)
+                var payload = await GoogleJsonWebSignature.ValidateAsync(googleIdToken);
+
+                if (payload == null)
+                    throw new UnauthorizedAccessException("Token de Google inválido.");
+
+                var email = payload.Email;
+
+                // 2. Buscar o crear el usuario en la base de datos
+                var usuario = await _usuarioRepository.GetByEmailAsync(email);
+
+                if (usuario == null)
+                    throw new UnauthorizedAccessException("Usuario no registrado.");
+
+                if (!string.Equals(usuario.Status, "active", StringComparison.OrdinalIgnoreCase))
+                    throw new UnauthorizedAccessException("Tu cuenta está inactiva.");
+
+                // 3. Generar tu token JWT personalizado
+                var token = GenerateJwtToken(usuario);
+
+                return new LoginResponse
+                {
+                    Token = token,
+                    Rol = usuario.Role,
+                    UserId = usuario.Id
+                };
+            }
+            catch (Exception ex)
+            {
+                throw new UnauthorizedAccessException($"Error al validar token de Google: {ex.Message}");
+            }
         }
 
         public async Task<LoginResponse> LoginAsync(LoginRequest request)
