@@ -1,4 +1,6 @@
-﻿using LaTroca.Application.Interfaces;
+﻿using LaTroca.Application.DTOs;
+using LaTroca.Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TorneoUniversitario.Application.DTOs;
 using TorneoUniversitario.Application.Interfaces;
@@ -96,6 +98,43 @@ namespace TorneoUniversitario.API.Controllers
             {
                 Console.WriteLine($"🔥 ERROR en AuthController: {ex.Message}");
                 return StatusCode(500, new { Message = $"Error interno del servidor: {ex.Message}" });
+            }
+        }
+
+        [HttpPost("deactivate-account")]
+        [Authorize] // 👈 Requiere estar autenticado
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<ActionResult> DeactivateAccount([FromBody] DeactivateAccountRequest request)
+        {
+            try
+            {
+                // Obtener el userId del token JWT
+                var userIdClaim = User.FindFirst("userId")?.Value;
+
+                if (string.IsNullOrEmpty(userIdClaim))
+                    return Unauthorized(new { Message = "Usuario no autenticado." });
+
+                await _authService.DeactivateAccountAsync(userIdClaim, request.Reason);
+
+                return Ok(new
+                {
+                    Message = "Tu cuenta ha sido desactivada con éxito. Será eliminada de forma permanente después de 30 días."
+                });
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"🔥 ERROR en DeactivateAccount: {ex.Message}");
+                return StatusCode(500, new { Message = "Error interno del servidor." });
             }
         }
 

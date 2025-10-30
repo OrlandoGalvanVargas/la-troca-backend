@@ -173,6 +173,31 @@ namespace TorneoUniversitario.Application.Services
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
+
+        public async Task DeactivateAccountAsync(string userId, string reason)
+        {
+            if (string.IsNullOrWhiteSpace(userId))
+                throw new ArgumentException("El ID de usuario es obligatorio.");
+
+            var usuario = await _usuarioRepository.GetByIdAsync(userId);
+            if (usuario == null)
+                throw new ArgumentException("Usuario no encontrado.");
+
+            if (usuario.Status != "active")
+                throw new InvalidOperationException("La cuenta ya está desactivada.");
+
+            // Actualizar el estado a "deactivated"
+            usuario.Status = "deactivated";
+            usuario.UpdatedAt = DateTime.UtcNow;
+
+            // Opcional: Guardar el motivo y fecha de desactivación
+            // Puedes agregar estos campos al modelo Usuario si quieres
+            // usuario.DeactivationReason = reason;
+            // usuario.DeactivationDate = DateTime.UtcNow;
+            // usuario.ScheduledDeletionDate = DateTime.UtcNow.AddDays(30);
+
+            await _usuarioRepository.UpdateAsync(usuario);
+        }
     }
 
 
