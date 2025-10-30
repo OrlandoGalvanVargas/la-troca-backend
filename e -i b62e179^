@@ -1,0 +1,25 @@
+[33m21e5dc5[m[33m ([m[1;36mHEAD -> [m[1;32mdevelop[m[33m)[m Agrego controladores y servicios de moderación de texto e imagen
+[33m1099f41[m Agrego controladores y servicios de moderación de texto e imagen
+[33mb62e179[m[33m ([m[1;31morigin/develop[m[33m, [m[1;31morigin/HEAD[m[33m)[m Add HuggingFace API key to staging deployment
+[33m112fba7[m feat: Añade ubicación en registro y mejora de pruebas
+[33m2ae7780[m feat: Añade ubicación en registro y mejora respuestas de API - Agrega soporte para Location en POST /api/Auth/register - Corrige userId null en POST /api/Auth/login - Estandariza respuestas con mensajes personalizados en AuthController y PostController
+[33m5bd94c6[m Merge branch 'develop' of https://github.com/OrlandoGalvanVargas/la-troca-backend into develop
+[33mcc9d0ca[m feat(posts): API completa con Cloudinary y autenticación JWT
+[33mb2fdd0c[m Add environment variables for build and test
+[33me5ea61f[m Add environment variables for build and test steps
+[33m2aee079[m feat: Implementacion de seguridad del secret keys
+[33m1f6aa7e[m Modify test command to use Release configuration
+[33m5a3edfe[m fix: Update test command to include Release configuration
+[33m1093de1[m Agrega cambios finales de API y pruebas
+[33m285546e[m fix: deploy-prod.yml to remove pull_request trigger
+[33m692a5a3[m feat: create pipeline deploy-prod.yml
+[33m05c714f[m Merge branch 'develop' of https://github.com/OrlandoGalvanVargas/la-troca-backend into develop
+[33meb95c3c[m feat: agregacion de validacion
+[33maa490ca[m docs(ci): improve comments in deploy-staging pipeline
+[33mc9b4cb8[m feat: create pipeline deploy-staging.yml
+[33mea8287b[m fix: update Dockerfile for LaTroca project
+[33md3ab909[m Agrego API de loginMongoBD con Clouddinary para IMG
+[33mdea310b[m Merge pull request #1 from OrlandoGalvanVargas/develop_apilogin_angel
+[33m26163fb[m Agrego API de loginMongoBD
+[33m92c2d91[m Agrego API de loginMongo
+[33m613b0be[m chore: Initial backend repository setup

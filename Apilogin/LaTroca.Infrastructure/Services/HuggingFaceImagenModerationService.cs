@@ -1,13 +1,13 @@
-﻿using LaTroca.Application.DTOs;
-using LaTroca.Application.Interfaces;
+﻿using LaTroca.Moderacion.Application.DTOs;
+using LaTroca.Moderacion.Application.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using System.Net.Http.Headers;
+using System.Text;
 using System.Text.Json;
 
-namespace LaTroca.Infrastructure.Services
+namespace LaTroca.Moderacion.Infrastructure.Services
 {
-
     public class HuggingFaceImagenModerationService : IImageModerationService
     {
         private readonly HttpClient _httpClient;
@@ -24,7 +24,6 @@ namespace LaTroca.Infrastructure.Services
             if (file == null || file.Length == 0)
                 return new ModerationResultDto { IsSafe = false, Message = "No se proporcionó una imagen válida." };
 
-
             using var ms = new MemoryStream();
             await file.CopyToAsync(ms);
             var bytes = ms.ToArray();
@@ -34,8 +33,8 @@ namespace LaTroca.Infrastructure.Services
 
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _apiKey);
 
-
-            var response = await _httpClient.PostAsync("https://api-inference.huggingface.co/models/Falconsai/nsfw_image_detection", content);
+            var response = await _httpClient.PostAsync(
+                "https://api-inference.huggingface.co/models/Falconsai/nsfw_image_detection", content);
             var json = await response.Content.ReadAsStringAsync();
 
             if (!response.IsSuccessStatusCode)
@@ -52,13 +51,12 @@ namespace LaTroca.Infrastructure.Services
                 labels.Add((label, score));
             }
 
+            // 🔹 Umbral muy bajo: incluso 1.2% no pasa
             var nsfw = labels.FirstOrDefault(l => l.Label.ToLower().Contains("nsfw"));
-            bool isSafe = nsfw.Score < 0.6;
+            bool isSafe = nsfw.Score < 0.01;
 
-            string message = isSafe
-                ? " Imagen segura."
-                : $"Imagen con posible contenido inapropiado.\n" +
-                  string.Join("\n", labels.Select(l => $"{l.Label}: {(l.Score * 100):F1}%"));
+            string message = (isSafe ? "✅ Imagen segura.\n" : "⚠️ Imagen con posible contenido inapropiado.\n") +
+                             string.Join("\n", labels.Select(l => $"{l.Label}: {(l.Score * 100):F1}%"));
 
             return new ModerationResultDto
             {
