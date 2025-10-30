@@ -32,39 +32,36 @@ namespace TorneoUniversitario.Application.Services
 
         public async Task<LoginResponse> LoginWithGoogleAsync(string googleIdToken)
         {
-            try
+            // 1. Validar el token de Google
+            var payload = await GoogleJsonWebSignature.ValidateAsync(googleIdToken);
+            if (payload == null)
+                throw new UnauthorizedAccessException("Token de Google inválido.");
+
+            var email = payload.Email;
+
+            // 2. Buscar usuario
+            var usuario = await _usuarioRepository.GetByEmailAsync(email);
+            if (usuario == null)
+                throw new UnauthorizedAccessException("Usuario no registrado.");
+
+            // 3. Verificar status (sin envolver en otro mensaje)
+            if (!string.Equals(usuario.Status, "active", StringComparison.OrdinalIgnoreCase))
+                throw new UnauthorizedAccessException("Tu cuenta está inactiva o ha sido suspendida. Contacta con el administrador.");  // 👈 MISMO mensaje que login normal
+
+            // 4. Generar token JWT
+            var token = GenerateJwtToken(usuario);
+
+            return new LoginResponse
             {
-                // 1. Validar el token de Google (usando Google.Apis.Auth)
-                var payload = await GoogleJsonWebSignature.ValidateAsync(googleIdToken);
-
-                if (payload == null)
-                    throw new UnauthorizedAccessException("Token de Google inválido.");
-
-                var email = payload.Email;
-
-                // 2. Buscar o crear el usuario en la base de datos
-                var usuario = await _usuarioRepository.GetByEmailAsync(email);
-
-                if (usuario == null)
-                    throw new UnauthorizedAccessException("Usuario no registrado.");
-
-                if (!string.Equals(usuario.Status, "active", StringComparison.OrdinalIgnoreCase))
-                    throw new UnauthorizedAccessException("Tu cuenta está inactiva.");
-
-                // 3. Generar tu token JWT personalizado
-                var token = GenerateJwtToken(usuario);
-
-                return new LoginResponse
-                {
-                    Token = token,
-                    Rol = usuario.Role,
-                    UserId = usuario.Id
-                };
-            }
-            catch (Exception ex)
-            {
-                throw new UnauthorizedAccessException($"Error al validar token de Google: {ex.Message}");
-            }
+                Token = token,
+                Rol = usuario.Role,
+                UserId = usuario.Id
+            };
+            // 👇 REMOVER ESTE CATCH que envuelve el mensaje
+            // catch (Exception ex)
+            // {
+            //     throw new UnauthorizedAccessException($"Error al validar token de Google: {ex.Message}");
+            // }
         }
 
         public async Task<LoginResponse> LoginAsync(LoginRequest request)
