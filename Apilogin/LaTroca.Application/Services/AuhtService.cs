@@ -1,5 +1,6 @@
 ﻿using BCrypt.Net;
 using Google.Apis.Auth;
+using LaTroca.Application.DTOs;
 using LaTroca.Application.Interfaces;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -57,11 +58,6 @@ namespace TorneoUniversitario.Application.Services
                 Rol = usuario.Role,
                 UserId = usuario.Id
             };
-            // 👇 REMOVER ESTE CATCH que envuelve el mensaje
-            // catch (Exception ex)
-            // {
-            //     throw new UnauthorizedAccessException($"Error al validar token de Google: {ex.Message}");
-            // }
         }
 
         public async Task<LoginResponse> LoginAsync(LoginRequest request)
@@ -136,6 +132,33 @@ namespace TorneoUniversitario.Application.Services
             await _usuarioRepository.AddAsync(usuario);
         }
 
+        public async Task<UserProfileResponse> GetUserProfileAsync(string userId)
+        {
+            if (string.IsNullOrWhiteSpace(userId))
+                throw new ArgumentException("El ID de usuario es obligatorio.");
+
+            var usuario = await _usuarioRepository.GetByIdAsync(userId);
+            if (usuario == null)
+                throw new ArgumentException("Usuario no encontrado.");
+
+            return new UserProfileResponse
+            {
+                Id = usuario.Id,
+                Name = usuario.Name,
+                Email = usuario.Email,
+                ProfilePicUrl = usuario.ProfilePicUrl ?? "",
+                Bio = usuario.Bio ?? "",
+                Role = usuario.Role,
+                Location = usuario.Location != null ? new LocationDto
+                {
+                    Latitude = usuario.Location.Latitude,
+                    Longitude = usuario.Location.Longitude,
+                    Manual = usuario.Location.Manual
+                } : null,
+                Reputation = 0, // 👈 Valor por defecto
+                CreatedAt = usuario.CreatedAt
+            };
+        }
         public async Task LogoutAsync()
         {
             await Task.CompletedTask;

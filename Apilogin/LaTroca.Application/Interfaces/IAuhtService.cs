@@ -1,4 +1,5 @@
-﻿using System;
+﻿using LaTroca.Application.DTOs;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -15,5 +16,7 @@ namespace TorneoUniversitario.Application.Interfaces
         Task RegisterAsync(RegisterRequest request);
         Task LogoutAsync();
         Task DeactivateAccountAsync(string userId, string reason); // 👈 Nuevo
+        Task<UserProfileResponse> GetUserProfileAsync(string userId); // 👈 NUEVO
+
     }
 }

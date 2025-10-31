@@ -138,6 +138,36 @@ namespace TorneoUniversitario.API.Controllers
             }
         }
 
+        [HttpGet("profile")]
+        [Authorize] // 👈 Requiere token
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<UserProfileResponse>> GetProfile()
+        {
+            try
+            {
+                // Obtener userId del token JWT
+                var userIdClaim = User.FindFirst("userId")?.Value;
+
+                if (string.IsNullOrEmpty(userIdClaim))
+                    return Unauthorized(new { Message = "Usuario no autenticado." });
+
+                var profile = await _authService.GetUserProfileAsync(userIdClaim);
+
+                return Ok(profile);
+            }
+            catch (ArgumentException ex)
+            {
+                return NotFound(new { Message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"🔥 ERROR en GetProfile: {ex.Message}");
+                return StatusCode(500, new { Message = "Error interno del servidor." });
+            }
+        }
+
         [HttpPost("logout")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult> Logout()
