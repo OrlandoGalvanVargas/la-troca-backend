@@ -12,11 +12,6 @@ namespace LaTroca.Infrastructure.Services
         private readonly HttpClient _httpClient;
         private readonly string _apiKey;
 
-        private const double ToxicThreshold = 0.08;
-        private const double ObsceneThreshold = 0.05;
-        private const double InsultThreshold = 0.05;
-        private const double OffensiveThreshold = 0.35;
-
         public HuggingFaceTextModerationService(HttpClient httpClient, IConfiguration config)
         {
             _httpClient = httpClient;
@@ -26,30 +21,33 @@ namespace LaTroca.Infrastructure.Services
         public async Task<ModerationResultDto> AnalyzeTextAsync(string text)
         {
             if (string.IsNullOrWhiteSpace(text))
-                return new ModerationResultDto
-                {
-                    IsSafe = true,
-                    Message = "Texto seguro.",
-                    RiskLevel = "safe"
-                };
+                return new ModerationResultDto { IsSafe = true, Message = "Texto vacío o nulo." };
 
-            _httpClient.DefaultRequestHeaders.Authorization =
-                new AuthenticationHeaderValue("Bearer", _apiKey);
-
+            
             string[] models =
             {
                 "unitary/toxic-bert",
-                "cardiffnlp/twitter-roberta-base-offensive"
+                "eliasalbouzidi/distilbert-nsfw-text-classifier"
             };
 
-            bool isInappropriate = false;
+            double toxicScore = 0.0;
+            double obsceneScore = 0.0;
+            double insultScore = 0.0;
+            double identityHateScore = 0.0;
+            double severeToxicScore = 0.0;
+            double threatScore = 0.0;
+            double nsfwScore = 0.0;
+            string details = "";
+
+            int wordCount = CountWords(text);
 
             foreach (var model in models)
             {
                 var body = new { inputs = text };
                 var content = new StringContent(JsonSerializer.Serialize(body), Encoding.UTF8, "application/json");
+                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _apiKey);
 
-                var response = await _httpClient.PostAsync($"https://api-inference.huggingface.co/models/{model}", content);
+                var response = await _httpClient.PostAsync($"https://router.huggingface.co/hf-inference/models/{model}", content);
                 var json = await response.Content.ReadAsStringAsync();
 
                 if (!response.IsSuccessStatusCode)
@@ -57,45 +55,109 @@ namespace LaTroca.Infrastructure.Services
                     return new ModerationResultDto
                     {
                         IsSafe = false,
-                        Message = "Texto inapropiado.",
-                        RiskLevel = "unsafe"
+                        Message = $"❌ Error al analizar texto con {model}. Respuesta del servidor: {json}"
                     };
                 }
 
                 using var doc = JsonDocument.Parse(json);
-                if (doc.RootElement.ValueKind != JsonValueKind.Array) continue;
+                var resultsList = new List<(string Label, double Score)>();
 
-                var results = doc.RootElement[0].EnumerateArray()
-                    .Select(x => new
+                void Extract(JsonElement el)
+                {
+                    if (el.ValueKind == JsonValueKind.Object)
                     {
-                        Label = x.GetProperty("label").GetString(),
-                        Score = x.GetProperty("score").GetDouble()
-                    })
-                    .ToList();
-
-                if (model.Contains("toxic-bert"))
-                {
-                    double toxic = results.FirstOrDefault(r => r.Label.Contains("toxic", StringComparison.OrdinalIgnoreCase))?.Score ?? 0;
-                    double obscene = results.FirstOrDefault(r => r.Label.Contains("obscene", StringComparison.OrdinalIgnoreCase))?.Score ?? 0;
-                    double insult = results.FirstOrDefault(r => r.Label.Contains("insult", StringComparison.OrdinalIgnoreCase))?.Score ?? 0;
-
-                    if (toxic >= ToxicThreshold || obscene >= ObsceneThreshold || insult >= InsultThreshold)
-                        isInappropriate = true;
+                        if (el.TryGetProperty("label", out var label) && el.TryGetProperty("score", out var score))
+                        {
+                            resultsList.Add((label.GetString() ?? "unknown", score.GetDouble()));
+                        }
+                    }
+                    else if (el.ValueKind == JsonValueKind.Array)
+                    {
+                        foreach (var i in el.EnumerateArray()) Extract(i);
+                    }
                 }
-                else if (model.Contains("twitter-roberta-base-offensive"))
+                Extract(doc.RootElement);
+
+                details += $"🔹 {model} → {string.Join(", ", resultsList.Select(r => $"{r.Label}: {(r.Score * 100):F1}%"))}\n";
+
+                if (model.Contains("toxic"))
                 {
-                    double offensive = results.FirstOrDefault(r => r.Label.Equals("offensive", StringComparison.OrdinalIgnoreCase))?.Score ?? 0;
-                    if (offensive >= OffensiveThreshold)
-                        isInappropriate = true;
+                    toxicScore = resultsList.FirstOrDefault(r => r.Label.Equals("toxic", StringComparison.OrdinalIgnoreCase)).Score;
+                    obsceneScore = resultsList.FirstOrDefault(r => r.Label.Equals("obscene", StringComparison.OrdinalIgnoreCase)).Score;
+                    insultScore = resultsList.FirstOrDefault(r => r.Label.Equals("insult", StringComparison.OrdinalIgnoreCase)).Score;
+                    identityHateScore = resultsList.FirstOrDefault(r => r.Label.Equals("identity_hate", StringComparison.OrdinalIgnoreCase)).Score;
+                    severeToxicScore = resultsList.FirstOrDefault(r => r.Label.Equals("severe_toxic", StringComparison.OrdinalIgnoreCase)).Score;
+                    threatScore = resultsList.FirstOrDefault(r => r.Label.Equals("threat", StringComparison.OrdinalIgnoreCase)).Score;
+                }
+                if (model.Contains("nsfw"))
+                {
+                    var nsfwCandidate = resultsList.FirstOrDefault(r =>
+                        r.Label.Equals("nsfw", StringComparison.OrdinalIgnoreCase) ||
+                        r.Label.Equals("unsafe", StringComparison.OrdinalIgnoreCase) ||
+                        r.Label.IndexOf("sex", StringComparison.OrdinalIgnoreCase) >= 0);
+
+                    nsfwScore = nsfwCandidate.Score;
                 }
             }
 
+            bool isSafe = true;
+            string category = "Normal";
+
+            const double TOXIC_OFFENSIVE_THRESHOLD = 0.25;
+            const double OBSCENE_THRESHOLD = 0.15;
+            const double INSULT_THRESHOLD = 0.15;
+            const double NSFW_STRONG_THRESHOLD = 0.99; 
+            const double NSFW_MID_THRESHOLD = 0.55;
+            const double NSFW_WEAK_THRESHOLD = 0.30;
+            const int NSFW_WEAK_WORDCOUNT_MIN = 3;
+
+            if (toxicScore >= TOXIC_OFFENSIVE_THRESHOLD ||
+                obsceneScore >= OBSCENE_THRESHOLD ||
+                insultScore >= INSULT_THRESHOLD ||
+                identityHateScore >= 0.15 ||
+                severeToxicScore >= 0.10 ||
+                threatScore >= 0.10)
+            {
+                isSafe = false;
+                category = "Ofensivo";
+            }
+            else
+            {
+
+                if (nsfwScore >= NSFW_STRONG_THRESHOLD && wordCount >= 3)
+                {
+                    isSafe = false;
+                    category = "Sexual";
+                }
+                else if (nsfwScore >= NSFW_MID_THRESHOLD && wordCount >= 4)
+                {
+                    isSafe = false;
+                    category = "Sexual";
+                }
+                else if (nsfwScore >= NSFW_WEAK_THRESHOLD && wordCount >= NSFW_WEAK_WORDCOUNT_MIN)
+                {
+                    isSafe = false;
+                    category = "Sexual";
+                }
+            }
+
+            string message = isSafe
+                ? $"Texto seguro"
+                : $"Texto posiblemente inapropiado";
+
             return new ModerationResultDto
             {
-                IsSafe = !isInappropriate,
-                Message = isInappropriate ? "Texto inapropiado." : "Texto seguro.",
-                RiskLevel = isInappropriate ? "unsafe" : "safe"
+                IsSafe = isSafe,
+                Message = message
             };
         }
+
+        private int CountWords(string text)
+        {
+            if (string.IsNullOrWhiteSpace(text)) return 0;
+            var tokens = text.Trim().Split(new char[] { ' ', '\t', '\n', '\r', ',', '.', ';', ':', '!', '?' }, StringSplitOptions.RemoveEmptyEntries);
+            return tokens.Length;
+        }
+
     }
 }
