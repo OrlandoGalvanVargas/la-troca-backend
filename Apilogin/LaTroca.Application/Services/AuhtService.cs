@@ -218,6 +218,39 @@ namespace TorneoUniversitario.Application.Services
 
             await _usuarioRepository.UpdateAsync(usuario);
         }
+        public async Task UpdateUserProfileAsync(string userId, UpdateProfileRequest request)
+        {
+            if (string.IsNullOrWhiteSpace(userId))
+                throw new ArgumentException("El ID de usuario es obligatorio.");
+
+            var usuario = await _usuarioRepository.GetByIdAsync(userId);
+            if (usuario == null)
+                throw new ArgumentException("Usuario no encontrado.");
+
+            // Actualizar campos si se proporcionan
+            if (!string.IsNullOrWhiteSpace(request.Nombre))
+                usuario.Name = request.Nombre;
+
+            if (request.Bio != null)
+                usuario.Bio = request.Bio;
+
+            // Usar el método GetLocation()
+            var location = request.GetLocation();
+            if (location != null)
+            {
+                usuario.Location = location;
+            }
+
+            // Subir nueva imagen si se proporciona
+            if (request.ImagenPerfil != null && request.ImagenPerfil.Length > 0)
+            {
+                var imageUrl = await _cloudinaryService.UploadImageAsync(request.ImagenPerfil, userId);
+                usuario.ProfilePicUrl = imageUrl;
+            }
+
+            usuario.UpdatedAt = DateTime.UtcNow;
+            await _usuarioRepository.UpdateAsync(usuario);
+        }
     }
 
 

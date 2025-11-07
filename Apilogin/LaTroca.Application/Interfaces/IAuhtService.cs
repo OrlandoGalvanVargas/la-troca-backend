@@ -17,6 +17,7 @@ namespace TorneoUniversitario.Application.Interfaces
         Task LogoutAsync();
         Task DeactivateAccountAsync(string userId, string reason); // 👈 Nuevo
         Task<UserProfileResponse> GetUserProfileAsync(string userId); // 👈 NUEVO
+        Task UpdateUserProfileAsync(string userId, UpdateProfileRequest request);
 
     }
 }
