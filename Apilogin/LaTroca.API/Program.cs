@@ -1,3 +1,5 @@
+﻿using Google.Apis.Auth.OAuth2;
+using Google.Cloud.Firestore;
 using LaTroca.Application.DTOs;
 using LaTroca.Application.Interfaces;
 using LaTroca.Application.Services;
@@ -5,6 +7,7 @@ using LaTroca.Domain.Interfaces;
 using LaTroca.Infrastructure;
 using LaTroca.Infrastructure.Data;
 using LaTroca.Infrastructure.Repositories;
+using LaTroca.Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -15,7 +18,24 @@ using TorneoUniversitario.Domain.Interfaces;
 using TorneoUniversitario.Infrastructure.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
+// Ruta absoluta o relativa al archivo .json descargado
+var credentialPath = Path.Combine(AppContext.BaseDirectory, "la-troca-ed2d2-firebase-adminsdk-fbsvc-efc751c72d.json");
 
+// Cargar las credenciales desde el archivo
+var credential = GoogleCredential.FromFile(credentialPath);
+
+// Crear el cliente Firestore con esas credenciales
+var firestoreBuilder = new FirestoreDbBuilder
+{
+    ProjectId = "la-troca-ed2d2", // 🔥 tu project ID de Firebase
+    Credential = credential
+};
+
+var firestoreDb = firestoreBuilder.Build();
+Console.WriteLine($"✅ Firestore conectado: {firestoreDb.ProjectId}");
+
+builder.Services.AddSingleton(firestoreDb);
+builder.Services.AddSingleton<INotificationService, NotificationService>();
 // Add services to the container.
 builder.Services.AddControllers();
 builder.Services.AddInfrastructure();
@@ -111,7 +131,7 @@ app.UseSwagger();
 app.UseSwaggerUI(c =>
 {
     c.SwaggerEndpoint("/swagger/v1/swagger.json", "La Troca v1");
-    c.RoutePrefix = string.Empty; // Swagger disponible en la ra�z (e.g., http://localhost:5001)
+    c.RoutePrefix = string.Empty; // Swagger disponible en la raíz (e.g., http://localhost:5001)
 });
 
 app.MapControllers();
