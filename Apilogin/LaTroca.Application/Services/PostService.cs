@@ -63,7 +63,8 @@ namespace TorneoUniversitario.Application.Services
 
             await _postRepository.AgregarAsync(publicacion);
 
-            return MapearARespuesta(publicacion);
+            // ✅ Usar método asíncrono con información de usuario
+            return await MapearARespuestaAsync(publicacion);
         }
 
         public async Task<PostResponse> ObtenerPublicacionPorIdAsync(string id)
@@ -71,7 +72,9 @@ namespace TorneoUniversitario.Application.Services
             var publicacion = await _postRepository.ObtenerPorIdAsync(id);
             if (publicacion == null)
                 throw new ArgumentException("Publicación no encontrada.");
-            return MapearARespuesta(publicacion);
+
+            // ✅ Usar método asíncrono con información de usuario
+            return await MapearARespuestaAsync(publicacion);
         }
 
         public async Task<List<PostResponse>> ObtenerPublicacionesPorUserIdAsync(string userId)
@@ -81,13 +84,29 @@ namespace TorneoUniversitario.Application.Services
                 throw new ArgumentException("Usuario no encontrado.");
 
             var publicaciones = await _postRepository.ObtenerPorUserIdAsync(userId);
-            return publicaciones.Select(MapearARespuesta).ToList();
+
+            // Mapear todas las publicaciones con información del usuario
+            var respuestas = new List<PostResponse>();
+            foreach (var publicacion in publicaciones)
+            {
+                respuestas.Add(await MapearARespuestaAsync(publicacion));
+            }
+
+            return respuestas;
         }
 
         public async Task<List<PostResponse>> ObtenerTodasPublicacionesAsync()
         {
             var publicaciones = await _postRepository.ObtenerTodosAsync();
-            return publicaciones.Select(MapearARespuesta).ToList();
+
+            // Mapear todas las publicaciones con información del usuario
+            var respuestas = new List<PostResponse>();
+            foreach (var publicacion in publicaciones)
+            {
+                respuestas.Add(await MapearARespuestaAsync(publicacion));
+            }
+
+            return respuestas;
         }
 
         public async Task ActualizarPublicacionAsync(string id, string userId, PostRequest request)
@@ -138,8 +157,12 @@ namespace TorneoUniversitario.Application.Services
             await _postRepository.EliminarAsync(id);
         }
 
-        private PostResponse MapearARespuesta(Post publicacion)
+        // 🆕 Método actualizado con información del usuario
+        private async Task<PostResponse> MapearARespuestaAsync(Post publicacion)
         {
+            // Obtener información del usuario
+            var usuario = await _usuarioRepository.GetByIdAsync(publicacion.UserId);
+
             return new PostResponse
             {
                 Id = publicacion.Id,
@@ -148,11 +171,29 @@ namespace TorneoUniversitario.Application.Services
                 Descripcion = publicacion.Descripcion,
                 Categoria = publicacion.Categoria,
                 FotosUrl = publicacion.FotosUrl,
-                Ubicacion = publicacion.Ubicacion,
+                Ubicacion = new UbicacionDto
+                {
+                    Latitude = publicacion.Ubicacion.Latitude,
+                    Longitude = publicacion.Ubicacion.Longitude,
+                    Manual = publicacion.Ubicacion.Manual
+                },
                 Necesidad = publicacion.Necesidad,
                 CreadoEn = publicacion.CreadoEn,
                 ActualizadoEn = publicacion.ActualizadoEn,
-                Estado = publicacion.Estado
+                Estado = publicacion.Estado,
+
+                // 🆕 Incluir información del usuario
+                UserInfo = usuario != null ? new UserBasicInfo
+                {
+                    UserId = usuario.Id,
+                    Name = usuario.Name ?? "Usuario",
+                    ProfileImageUrl = usuario.ProfilePicUrl ?? ""
+                } : new UserBasicInfo
+                {
+                    UserId = publicacion.UserId,
+                    Name = "Usuario Desconocido",
+                    ProfileImageUrl = ""
+                }
             };
         }
     }

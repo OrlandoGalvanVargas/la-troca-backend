@@ -132,7 +132,7 @@ namespace LaTroca.API.Controllers
                 if (string.IsNullOrEmpty(userIdClaim))
                 {
                     return Unauthorized(new { Message = "Usuario no autenticado." });
-                }
+                }   
 
                 // Eliminar token de Firestore
                 var result = await _notificationService.RemoveUserFcmTokenAsync(userIdClaim);
