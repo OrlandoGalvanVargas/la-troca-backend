@@ -17,8 +17,8 @@ namespace LaTroca.Infrastructure.Services
 
         public NotificationService(FirestoreDb firestore, ILogger<NotificationService> logger)
         {
-            _firestore = firestore;
-            _logger = logger;
+            _firestore = firestore ?? throw new ArgumentNullException(nameof(firestore));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
             // Inicializar FirebaseApp una sola vez (thread-safe)
             if (!_firebaseInitialized)
@@ -27,21 +27,27 @@ namespace LaTroca.Infrastructure.Services
                 {
                     if (!_firebaseInitialized)
                     {
-                        var credentialsPath = Path.Combine(AppContext.BaseDirectory, "la-troca-ed2d2-firebase-adminsdk-fbsvc-67a0cf6df5.json");
-
-                        if (!File.Exists(credentialsPath))
+                        try
                         {
-                            _logger.LogError($"❌ No se encontró el archivo de credenciales Firebase en: {credentialsPath}");
-                            throw new FileNotFoundException("No se encontró el archivo firebase-adminsdk.json", credentialsPath);
+                            // FirebaseApp ya debería estar inicializado en Program.cs
+                            // Solo verificamos si existe
+                            if (FirebaseApp.DefaultInstance == null)
+                            {
+                                _logger.LogWarning("⚠️ FirebaseApp no está inicializado. Se espera que esté configurado en Program.cs");
+                            }
+                            else
+                            {
+                                _logger.LogInformation("✅ FirebaseApp ya está inicializado correctamente.");
+                            }
+
+                            _firebaseInitialized = true;
                         }
-
-                        FirebaseApp.Create(new AppOptions
+                        catch (Exception ex)
                         {
-                            Credential = GoogleCredential.FromFile(credentialsPath)
-                        });
-
-                        _firebaseInitialized = true;
-                        _logger.LogInformation("✅ FirebaseApp inicializado correctamente.");
+                            _logger.LogError($"❌ Error verificando Firebase: {ex.Message}");
+                            _logger.LogError($"Stack trace: {ex.StackTrace}");
+                            throw;
+                        }
                     }
                 }
             }
@@ -59,6 +65,8 @@ namespace LaTroca.Infrastructure.Services
         {
             try
             {
+                _logger.LogInformation($"📤 Enviando notificación a token: {receiverFcmToken.Substring(0, 20)}...");
+
                 var message = new Message
                 {
                     Token = receiverFcmToken,
@@ -71,7 +79,20 @@ namespace LaTroca.Infrastructure.Services
                     {
                         { "chatId", chatId },
                         { "senderId", senderId },
+                        { "senderName", senderName },
+                        { "messageText", messageText },
                         { "type", "chat_message" }
+                    },
+                    // 👈 Configuración para Android
+                    Android = new AndroidConfig
+                    {
+                        Priority = Priority.High,
+                        Notification = new AndroidNotification
+                        {
+                            ChannelId = "chat_notifications",
+                            Sound = "default",
+                            Priority = NotificationPriority.HIGH
+                        }
                     }
                 };
 
@@ -82,11 +103,13 @@ namespace LaTroca.Infrastructure.Services
             catch (FirebaseMessagingException ex)
             {
                 _logger.LogError($"❌ Error FCM ({ex.MessagingErrorCode}): {ex.Message}");
+                _logger.LogError($"Stack trace: {ex.StackTrace}");
                 return false;
             }
             catch (Exception ex)
             {
                 _logger.LogError($"❌ Error general al enviar notificación: {ex.Message}");
+                _logger.LogError($"Stack trace: {ex.StackTrace}");
                 return false;
             }
         }
@@ -98,19 +121,26 @@ namespace LaTroca.Infrastructure.Services
         {
             try
             {
-                var userRef = _firestore.Collection("users").Document(userId);
-                await userRef.SetAsync(new
-                {
-                    fcmToken,
-                    updatedAt = Timestamp.GetCurrentTimestamp()
-                }, SetOptions.MergeAll);
+                _logger.LogInformation($"🔄 Actualizando token FCM para usuario: {userId}");
+                _logger.LogInformation($"📱 Token FCM: {fcmToken.Substring(0, 20)}...");
 
-                _logger.LogInformation($"🔄 Token FCM actualizado para usuario {userId}");
+                var userRef = _firestore.Collection("users").Document(userId);
+
+                var data = new Dictionary<string, object>
+                {
+                    { "fcmToken", fcmToken },
+                    { "fcmTokenUpdatedAt", Timestamp.GetCurrentTimestamp() }
+                };
+
+                await userRef.SetAsync(data, SetOptions.MergeAll);
+
+                _logger.LogInformation($"✅ Token FCM actualizado exitosamente para usuario {userId}");
                 return true;
             }
             catch (Exception ex)
             {
-                _logger.LogError($"❌ Error al actualizar token FCM: {ex.Message}");
+                _logger.LogError($"❌ Error al actualizar token FCM para usuario {userId}: {ex.Message}");
+                _logger.LogError($"Stack trace: {ex.StackTrace}");
                 return false;
             }
         }
@@ -122,19 +152,22 @@ namespace LaTroca.Infrastructure.Services
         {
             try
             {
+                _logger.LogInformation($"🗑️ Eliminando token FCM para usuario: {userId}");
+
                 var userRef = _firestore.Collection("users").Document(userId);
                 await userRef.UpdateAsync(new Dictionary<string, object>
                 {
                     { "fcmToken", FieldValue.Delete },
-                    { "updatedAt", Timestamp.GetCurrentTimestamp() }
+                    { "fcmTokenUpdatedAt", Timestamp.GetCurrentTimestamp() }
                 });
 
-                _logger.LogInformation($"🗑️ Token FCM eliminado para usuario {userId}");
+                _logger.LogInformation($"✅ Token FCM eliminado exitosamente para usuario {userId}");
                 return true;
             }
             catch (Exception ex)
             {
-                _logger.LogError($"❌ Error al eliminar token FCM: {ex.Message}");
+                _logger.LogError($"❌ Error al eliminar token FCM para usuario {userId}: {ex.Message}");
+                _logger.LogError($"Stack trace: {ex.StackTrace}");
                 return false;
             }
         }

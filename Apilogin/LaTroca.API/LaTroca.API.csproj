@@ -28,5 +28,11 @@
     <ProjectReference Include="..\LaTroca.Application\LaTroca.Application.csproj" />
     <ProjectReference Include="..\LaTroca.Infrastructure\LaTroca.Infrastructure.csproj" />
   </ItemGroup>
+	<!-- 🔥 Copiar archivo Firebase al output (solo para desarrollo local) -->
+	<ItemGroup>
+		<None Update="la-troca-ed2d2-firebase-adminsdk-fbsvc-67a0cf6df5.json">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
 
 </Project>

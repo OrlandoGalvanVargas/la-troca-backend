@@ -18,10 +18,10 @@ using TorneoUniversitario.Domain.Interfaces;
 using TorneoUniversitario.Infrastructure.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
-// ===================== 🔥 FIREBASE CREDS =====================
+// ===================== 🔥 FIREBASE SETUP =====================
 GoogleCredential credential;
 
-// 1️⃣ Si existe la variable de entorno (GitHub Actions o Render)
+// 1️⃣ Si existe la variable de entorno (Render o GitHub Actions)
 var firebaseJson = Environment.GetEnvironmentVariable("FIREBASE_CREDENTIALS_JSON");
 if (!string.IsNullOrEmpty(firebaseJson))
 {
@@ -33,10 +33,40 @@ else
     // 2️⃣ Si no existe, usar el archivo local (para desarrollo)
     var credentialPath = Path.Combine(AppContext.BaseDirectory, "la-troca-ed2d2-firebase-adminsdk-fbsvc-67a0cf6df5.json");
     Console.WriteLine($"✅ Cargando credenciales de Firebase desde archivo local: {credentialPath}");
+
+    if (!File.Exists(credentialPath))
+    {
+        Console.WriteLine($"❌ ERROR: No se encontró el archivo de credenciales en: {credentialPath}");
+        throw new FileNotFoundException("Archivo de credenciales Firebase no encontrado", credentialPath);
+    }
+
     credential = GoogleCredential.FromFile(credentialPath);
 }
 
-// Crear cliente Firestore
+// 🔥 Inicializar Firebase Admin SDK (para FCM)
+try
+{
+    if (FirebaseAdmin.FirebaseApp.DefaultInstance == null)
+    {
+        FirebaseAdmin.FirebaseApp.Create(new FirebaseAdmin.AppOptions
+        {
+            Credential = credential,
+            ProjectId = "la-troca-ed2d2"
+        });
+        Console.WriteLine("✅ Firebase Admin SDK inicializado correctamente");
+    }
+    else
+    {
+        Console.WriteLine("ℹ️ Firebase Admin SDK ya estaba inicializado");
+    }
+}
+catch (Exception ex)
+{
+    Console.WriteLine($"❌ ERROR al inicializar Firebase Admin SDK: {ex.Message}");
+    throw;
+}
+
+// 🔥 Crear cliente Firestore
 var firestoreBuilder = new FirestoreDbBuilder
 {
     ProjectId = "la-troca-ed2d2",
@@ -44,13 +74,14 @@ var firestoreBuilder = new FirestoreDbBuilder
 };
 
 var firestoreDb = firestoreBuilder.Build();
-Console.WriteLine($"✅ Firestore conectado Ok: {firestoreDb.ProjectId}");
+Console.WriteLine($"✅ Firestore conectado OK: {firestoreDb.ProjectId}");
 
 // ============================================================
 
-
 builder.Services.AddSingleton(firestoreDb);
 builder.Services.AddSingleton<INotificationService, NotificationService>();
+
+// ... resto de tu código ...
 // Add services to the container.
 builder.Services.AddControllers();
 builder.Services.AddInfrastructure();
