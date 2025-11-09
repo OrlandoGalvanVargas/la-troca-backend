@@ -13,3 +13,4 @@ obj/
 *.cache
 # Firebase private key
 *.json
+Apilogin/LaTroca.API/la-troca-ed2d2-firebase-adminsdk-fbsvc-efc751c72d.json
