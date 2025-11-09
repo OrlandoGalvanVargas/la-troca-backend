@@ -37,6 +37,12 @@ jobs:
           CloudinarySettings__ApiKey: ${{ secrets.CLOUDINARY_API_KEY }}
           CloudinarySettings__ApiSecret: ${{ secrets.CLOUDINARY_API_SECRET }}
           CloudinarySettings__CloudName: "dr4vyv3ar"
+
+       # 4.5. 🔥 Crear el archivo de credenciales Firebase
+      - name: Create Firebase credentials file
+        run: |
+          echo "${{ secrets.FIREBASE_CREDENTIALS_JSON }}" > Apilogin/LaTroca.API/la-troca-ed2d2-firebase-adminsdk-fbsvc-efc751c72d.json
+      
       # 5. Ejecutar pruebas (si tienes proyecto de tests)
       - name: Run tests
         run: |
