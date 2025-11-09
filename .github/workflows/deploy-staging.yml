@@ -41,7 +41,7 @@ jobs:
        # 4.5. 🔥 Crear el archivo de credenciales Firebase
       - name: Create Firebase credentials file
         run: |
-          echo "${{ secrets.FIREBASE_CREDENTIALS_JSON }}" > Apilogin/LaTroca.API/la-troca-ed2d2-firebase-adminsdk-fbsvc-efc751c72d.json
+          echo "${{ secrets.FIREBASE_CREDENTIALS_JSON }}" > Apilogin/LaTroca.API/la-troca-ed2d2-firebase-adminsdk-fbsvc-67a0cf6df5.json
       
       # 5. Ejecutar pruebas (si tienes proyecto de tests)
       - name: Run tests
