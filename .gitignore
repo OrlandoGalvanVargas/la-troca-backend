@@ -11,5 +11,3 @@ obj/
 *.log
 *.tmp
 *.cache
-# Firebase private key
-*.json
