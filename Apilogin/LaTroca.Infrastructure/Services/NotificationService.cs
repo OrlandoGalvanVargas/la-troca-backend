@@ -27,7 +27,7 @@ namespace LaTroca.Infrastructure.Services
                 {
                     if (!_firebaseInitialized)
                     {
-                        var credentialsPath = Path.Combine(AppContext.BaseDirectory, "la-troca-ed2d2-firebase-adminsdk-fbsvc-efc751c72d.json");
+                        var credentialsPath = Path.Combine(AppContext.BaseDirectory, "la-troca-ed2d2-firebase-adminsdk-fbsvc-67a0cf6df5.json");
 
                         if (!File.Exists(credentialsPath))
                         {

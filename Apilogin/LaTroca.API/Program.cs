@@ -19,7 +19,7 @@ using TorneoUniversitario.Infrastructure.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 // Ruta absoluta o relativa al archivo .json descargado
-var credentialPath = Path.Combine(AppContext.BaseDirectory, "la-troca-ed2d2-firebase-adminsdk-fbsvc-efc751c72d.json");
+var credentialPath = Path.Combine(AppContext.BaseDirectory, "la-troca-ed2d2-firebase-adminsdk-fbsvc-67a0cf6df5.json");
 
 // Cargar las credenciales desde el archivo
 var credential = GoogleCredential.FromFile(credentialPath);
