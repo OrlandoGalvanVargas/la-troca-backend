@@ -32,7 +32,7 @@ var firestoreBuilder = new FirestoreDbBuilder
 };
 
 var firestoreDb = firestoreBuilder.Build();
-Console.WriteLine($"✅ Firestore conectado: {firestoreDb.ProjectId}");
+Console.WriteLine($"✅ Firestore conectado Ok: {firestoreDb.ProjectId}");
 
 builder.Services.AddSingleton(firestoreDb);
 builder.Services.AddSingleton<INotificationService, NotificationService>();
