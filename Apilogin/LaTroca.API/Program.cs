@@ -18,21 +18,36 @@ using TorneoUniversitario.Domain.Interfaces;
 using TorneoUniversitario.Infrastructure.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
-// Ruta absoluta o relativa al archivo .json descargado
-var credentialPath = Path.Combine(AppContext.BaseDirectory, "la-troca-ed2d2-firebase-adminsdk-fbsvc-67a0cf6df5.json");
+// ===================== 🔥 FIREBASE CREDS =====================
+GoogleCredential credential;
 
-// Cargar las credenciales desde el archivo
-var credential = GoogleCredential.FromFile(credentialPath);
+// 1️⃣ Si existe la variable de entorno (GitHub Actions o Render)
+var firebaseJson = Environment.GetEnvironmentVariable("FIREBASE_CREDENTIALS_JSON");
+if (!string.IsNullOrEmpty(firebaseJson))
+{
+    Console.WriteLine("✅ Cargando credenciales de Firebase desde variable de entorno...");
+    credential = GoogleCredential.FromJson(firebaseJson);
+}
+else
+{
+    // 2️⃣ Si no existe, usar el archivo local (para desarrollo)
+    var credentialPath = Path.Combine(AppContext.BaseDirectory, "la-troca-ed2d2-firebase-adminsdk-fbsvc-67a0cf6df5.json");
+    Console.WriteLine($"✅ Cargando credenciales de Firebase desde archivo local: {credentialPath}");
+    credential = GoogleCredential.FromFile(credentialPath);
+}
 
-// Crear el cliente Firestore con esas credenciales
+// Crear cliente Firestore
 var firestoreBuilder = new FirestoreDbBuilder
 {
-    ProjectId = "la-troca-ed2d2", // 🔥 tu project ID de Firebase
+    ProjectId = "la-troca-ed2d2",
     Credential = credential
 };
 
 var firestoreDb = firestoreBuilder.Build();
 Console.WriteLine($"✅ Firestore conectado Ok: {firestoreDb.ProjectId}");
+
+// ============================================================
+
 
 builder.Services.AddSingleton(firestoreDb);
 builder.Services.AddSingleton<INotificationService, NotificationService>();
