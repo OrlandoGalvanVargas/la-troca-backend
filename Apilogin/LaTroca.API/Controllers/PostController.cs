@@ -1,4 +1,5 @@
 ﻿using LaTroca.Application.Interfaces;
+using LaTroca.Application.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TorneoUniversitario.Application.DTOs;
@@ -11,13 +12,13 @@ namespace TorneoUniversitario.API.Controllers
     public class PostController : ControllerBase
     {
         private readonly IPostService _postService;
-        private readonly ITextModerationService _textModerationService;
+        private readonly ITextModerationServices _textModerationServices;
         private readonly IImageModerationService _imageModerationService;
 
-        public PostController(IPostService postService, ITextModerationService textModerationService, IImageModerationService imageModerationService)
+        public PostController(IPostService postService, ITextModerationServices textModerationServices, IImageModerationService imageModerationService)
         {
             _postService = postService;
-            _textModerationService = textModerationService;
+            _textModerationServices = textModerationServices;
             _imageModerationService = imageModerationService;
         }
 
@@ -35,29 +36,31 @@ namespace TorneoUniversitario.API.Controllers
                 if (string.IsNullOrEmpty(userId))
                     return Unauthorized(new { Message = "Usuario no identificado." });
 
-         
+
+                // === MODERACIÓN DE TEXTO (solo análisis) ===
                 var camposTexto = new Dictionary<string, string>
                 {
-                    { "Titulo", request.Titulo },
-                    { "Descripcion", request.Descripcion },
-                    { "Categoria", request.Categoria },
+                    { "Título", request.Titulo },
+                    { "Descripción", request.Descripcion },
+                    { "Categoría", request.Categoria },
                     { "Necesidad", request.Necesidad }
                 };
 
-                
                 foreach (var campo in camposTexto)
                 {
                     if (!string.IsNullOrWhiteSpace(campo.Value))
                     {
-                        var resultado = await _textModerationService.AnalyzeTextAsync(campo.Value);
-                        if (!resultado.IsSafe)
+                        if (!await _textModerationServices.IsTextSafeAsync(campo.Value))
                         {
-                            return BadRequest(new { Message = $"Texto inapropiado detectado en el campo {campo.Key}: {campo.Value}" });
+                            return BadRequest(new
+                            {
+                                Message = $"Texto inapropiado detectado en el campo {campo.Key}."
+                            });
                         }
                     }
                 }
 
-            
+
                 foreach (var foto in request.Fotos)
                 {
                     var imageModerationResult = await _imageModerationService.AnalyzeImageAsync(foto);
@@ -156,29 +159,31 @@ namespace TorneoUniversitario.API.Controllers
                 if (string.IsNullOrEmpty(userId))
                     return Unauthorized(new { Message = "Usuario no identificado." });
 
-                
+
+                // === MODERACIÓN DE TEXTO (solo análisis) ===
                 var camposTexto = new Dictionary<string, string>
                 {
-                    { "Titulo", request.Titulo },
-                    { "Descripcion", request.Descripcion },
-                    { "Categoria", request.Categoria },
+                    { "Título", request.Titulo },
+                    { "Descripción", request.Descripcion },
+                    { "Categoría", request.Categoria },
                     { "Necesidad", request.Necesidad }
                 };
 
-                
                 foreach (var campo in camposTexto)
                 {
                     if (!string.IsNullOrWhiteSpace(campo.Value))
                     {
-                        var resultado = await _textModerationService.AnalyzeTextAsync(campo.Value);
-                        if (!resultado.IsSafe)
+                        if (!await _textModerationServices.IsTextSafeAsync(campo.Value))
                         {
-                            return BadRequest(new { Message = $"Texto inapropiado detectado en el campo {campo.Key}: {campo.Value}" });
+                            return BadRequest(new
+                            {
+                                Message = $"Texto inapropiado detectado en el campo {campo.Key}."
+                            });
                         }
                     }
                 }
 
-                
+
                 foreach (var foto in request.Fotos)
                 {
                     var imageModerationResult = await _imageModerationService.AnalyzeImageAsync(foto);

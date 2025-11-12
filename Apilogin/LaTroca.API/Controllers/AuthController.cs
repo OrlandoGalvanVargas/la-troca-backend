@@ -1,5 +1,6 @@
 ﻿using LaTroca.Application.DTOs;
 using LaTroca.Application.Interfaces;
+using LaTroca.Application.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TorneoUniversitario.Application.DTOs;
@@ -13,11 +14,14 @@ namespace TorneoUniversitario.API.Controllers
     {
         private readonly IAuthService _authService;
         private readonly IImageModerationService _imageModerationService;
+        private readonly ITextModerationServices _textModerationServices; // AÑADIDO
 
-        public AuthController(IAuthService authService, IImageModerationService imageModerationService)
+        public AuthController(IAuthService authService, IImageModerationService imageModerationService, ITextModerationServices textModerationServices)
         {
             _authService = authService;
             _imageModerationService = imageModerationService;
+            _textModerationServices = textModerationServices;
+
         }
 
         [HttpPost("login-google")]
@@ -71,7 +75,14 @@ namespace TorneoUniversitario.API.Controllers
         {
             try
             {
-             
+                // === MODERACIÓN DE TEXTO: NOMBRE Y BIO ===
+                if (!await _textModerationServices.IsTextSafeAsync(request.Nombre))
+                    return BadRequest(new { Message = "El nombre contiene lenguaje inapropiado." });
+
+                if (!string.IsNullOrWhiteSpace(request.Bio) &&
+                    !await _textModerationServices.IsTextSafeAsync(request.Bio))
+                    return BadRequest(new { Message = "La biografía contiene lenguaje inapropiado." });
+
                 if (request.ImagenPerfil != null && request.ImagenPerfil.Length > 0)
                 {
                     var moderationResult = await _imageModerationService.AnalyzeImageAsync(request.ImagenPerfil);

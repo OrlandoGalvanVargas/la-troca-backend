@@ -8,12 +8,19 @@
 
   <ItemGroup>
     <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
+    <PackageReference Include="BogaNet.BadWordFilter" Version="1.4.0" />
+    <PackageReference Include="Bunkum.ProfanityFilter" Version="4.7.0" />
+    <PackageReference Include="Censored" Version="2.0.0.21-beta" />
     <PackageReference Include="CloudinaryDotNet" Version="1.27.8" />
+    <PackageReference Include="DotnetBadWordDetector" Version="2.0.0" />
     <PackageReference Include="FirebaseAdmin" Version="3.4.0" />
     <PackageReference Include="Google.Apis.Auth" Version="1.72.0" />
     <PackageReference Include="Google.Cloud.Firestore" Version="3.12.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Hosting" Version="2.3.0" />
     <PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="5.0.17" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.9" />
+    <PackageReference Include="nikolliervin.profanity-detector" Version="1.0.6" />
+    <PackageReference Include="Profanity.Detector" Version="0.1.8" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.0.1" />
   </ItemGroup>
 

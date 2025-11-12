@@ -40,5 +40,16 @@ namespace TorneoUniversitario.Infrastructure.Repositories
             usuario.UpdatedAt = DateTime.UtcNow;
             await _context.Usuarios.ReplaceOneAsync(u => u.Id == usuario.Id, usuario);
         }
+        // NUEVO: Obtener todos los usuarios
+        public async Task<List<Usuario>> GetAllAsync()
+        {
+            return await _context.Usuarios.Find(_ => true).ToListAsync();
+        }
+
+        // NUEVO: Eliminar usuario por ID
+        public async Task DeleteAsync(string id)
+        {
+            await _context.Usuarios.DeleteOneAsync(u => u.Id == id);
+        }
     }
 }

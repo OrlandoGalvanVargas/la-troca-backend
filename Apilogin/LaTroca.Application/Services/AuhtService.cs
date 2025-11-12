@@ -187,7 +187,7 @@ namespace TorneoUniversitario.Application.Services
                 issuer: _jwtSettings.Issuer,
                 audience: _jwtSettings.Audience,
                 claims: claims,
-                expires: DateTime.UtcNow.AddHours(3),
+                expires: DateTime.UtcNow.AddHours(48),
                 signingCredentials: creds
             );
 
@@ -249,6 +249,27 @@ namespace TorneoUniversitario.Application.Services
             }
 
             usuario.UpdatedAt = DateTime.UtcNow;
+            await _usuarioRepository.UpdateAsync(usuario);
+        }
+        public async Task ChangePasswordAsync(string userId, ChangePasswordSimpleRequest request)
+        {
+            if (string.IsNullOrWhiteSpace(userId))
+                throw new ArgumentException("El ID de usuario es obligatorio.");
+
+            if (string.IsNullOrWhiteSpace(request.NewPassword))
+                throw new ArgumentException("La nueva contraseña es obligatoria.");
+
+            if (request.NewPassword.Length < 8)
+                throw new ArgumentException("La nueva contraseña debe tener al menos 8 caracteres.");
+
+            var usuario = await _usuarioRepository.GetByIdAsync(userId);
+            if (usuario == null)
+                throw new ArgumentException("Usuario no encontrado.");
+
+            // Hashear nueva contraseña
+            usuario.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.NewPassword);
+            usuario.UpdatedAt = DateTime.UtcNow;
+
             await _usuarioRepository.UpdateAsync(usuario);
         }
     }

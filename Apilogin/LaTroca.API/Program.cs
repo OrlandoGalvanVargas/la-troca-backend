@@ -131,7 +131,7 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ICloudinaryService, CloudinaryService>();
 builder.Services.AddScoped<IPostRepository, PostRepository>();
 builder.Services.AddScoped<IPostService, PostService>();
-
+builder.Services.AddSingleton<ITextModerationServices, TextModerationServices>();
 
 
 // Configure JWT settings

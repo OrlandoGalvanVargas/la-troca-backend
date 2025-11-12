@@ -99,13 +99,16 @@ namespace TorneoUniversitario.Application.Services
         {
             var publicaciones = await _postRepository.ObtenerTodosAsync();
 
-            // Mapear todas las publicaciones con información del usuario
+            // ORDENAR POR FECHA DESCENDENTE (más reciente primero)
+            var publicacionesOrdenadas = publicaciones
+                .OrderByDescending(p => p.CreadoEn)
+                .ToList();
+
             var respuestas = new List<PostResponse>();
-            foreach (var publicacion in publicaciones)
+            foreach (var publicacion in publicacionesOrdenadas)
             {
                 respuestas.Add(await MapearARespuestaAsync(publicacion));
             }
-
             return respuestas;
         }
 

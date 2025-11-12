@@ -8,5 +8,7 @@ namespace TorneoUniversitario.Domain.Interfaces
         Task<Usuario> AddAsync(Usuario usuario);
         Task<Usuario?> GetByIdAsync(string id);
         Task UpdateAsync(Usuario usuario);
+        Task<List<Usuario>> GetAllAsync();
+        Task DeleteAsync(string id);
     }
 }
