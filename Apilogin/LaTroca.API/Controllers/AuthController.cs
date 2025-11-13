@@ -30,7 +30,7 @@ namespace TorneoUniversitario.API.Controllers
             try
             {
                 var response = await _authService.LoginWithGoogleAsync(request.IdToken);
-                return Ok(response);
+                return Ok(new { Message = "Inicio de sesión exitoso.", Data = response });
             }
             catch (UnauthorizedAccessException ex)
             {
