@@ -1,4 +1,4 @@
-﻿using FirebaseAdmin;
+using FirebaseAdmin;
 using FirebaseAdmin.Messaging;
 using Google.Apis.Auth.OAuth2;
 using Google.Cloud.Firestore;
@@ -55,6 +55,7 @@ namespace LaTroca.Infrastructure.Services
 
         /// <summary>
         /// Envía una notificación push al dispositivo del receptor.
+        /// IMPORTANTE: Solo usa DATA payload para que onMessageReceived siempre se ejecute.
         /// </summary>
         public async Task<bool> SendChatNotificationAsync(
             string receiverFcmToken,
@@ -67,14 +68,16 @@ namespace LaTroca.Infrastructure.Services
             {
                 _logger.LogInformation($"📤 Enviando notificación a token: {receiverFcmToken.Substring(0, 20)}...");
 
+                // 🔧 CAMBIO IMPORTANTE: Solo usar DATA payload, NO notification payload
+                // Esto asegura que onMessageReceived() siempre se ejecute
                 var message = new Message
                 {
                     Token = receiverFcmToken,
-                    Notification = new Notification
-                    {
-                        Title = $"{senderName} te ha enviado un mensaje",
-                        Body = messageText
-                    },
+                    
+                    // ❌ REMOVIDO: No usar Notification para que el cliente maneje todo
+                    // Notification = new Notification { ... }
+                    
+                    // ✅ Solo DATA - el cliente Android mostrará la notificación
                     Data = new Dictionary<string, string>
                     {
                         { "chatId", chatId },
@@ -83,21 +86,19 @@ namespace LaTroca.Infrastructure.Services
                         { "messageText", messageText },
                         { "type", "chat_message" }
                     },
-                    // 👈 Configuración para Android
+                    
+                    // Configuración para Android
                     Android = new AndroidConfig
                     {
                         Priority = Priority.High,
-                        Notification = new AndroidNotification
-                        {
-                            ChannelId = "chat_notifications",
-                            Sound = "default",
-                            Priority = NotificationPriority.HIGH
-                        }
+                        // ❌ REMOVIDO: AndroidNotification también
+                        // Solo usamos Data con Priority alta
                     }
                 };
 
                 var response = await FirebaseMessaging.DefaultInstance.SendAsync(message);
-                _logger.LogInformation($"✅ Notificación enviada correctamente. ResponseId: {response}");
+                _logger.LogInformation($"✅ Notificación DATA enviada correctamente. ResponseId: {response}");
+                _logger.LogInformation($"📊 Datos enviados: chatId={chatId}, sender={senderName}");
                 return true;
             }
             catch (FirebaseMessagingException ex)
