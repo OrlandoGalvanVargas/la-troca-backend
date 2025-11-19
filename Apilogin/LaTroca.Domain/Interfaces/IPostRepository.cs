@@ -10,5 +10,7 @@ namespace LaTroca.Domain.Interfaces
         Task<List<Post>> ObtenerTodosAsync();
         Task ActualizarAsync(Post post);
         Task EliminarAsync(string id);
+        // NUEVO: Eliminar todas las publicaciones de un usuario
+        Task EliminarTodasPorUserIdAsync(string userId);
     }
 }

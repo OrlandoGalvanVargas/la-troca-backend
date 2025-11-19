@@ -11,7 +11,7 @@ namespace TorneoUniversitario.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = "ADMIN")]
+    [Authorize(Roles = "ADMIN,USER")]
     public class AdminController : ControllerBase
     {
         private readonly IAuthService _authService;
@@ -174,6 +174,50 @@ namespace TorneoUniversitario.API.Controllers
             catch (Exception ex)
             {
                 Console.WriteLine($"ERROR en DeleteUser: {ex.Message}");
+                return StatusCode(500, new { Message = "Error interno del servidor." });
+            }
+        }
+        /// <summary>
+        /// Elimina permanentemente la cuenta del usuario autenticado o permite al ADMIN eliminar cualquier cuenta
+        /// </summary>
+        [HttpDelete("me")]
+        [Authorize]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult> DeleteMyAccount()
+        {
+            var currentUserId = User.FindFirst("userId")?.Value;
+            if (string.IsNullOrEmpty(currentUserId))
+                return Unauthorized(new { Message = "Token inválido." });
+
+            var currentUserRole = User.FindFirst(ClaimTypes.Role)?.Value;
+
+            try
+            {
+                // Caso 1: El usuario elimina su propia cuenta
+                if (currentUserRole == "USER")
+                {
+                    await _authService.DeleteUserAccountAsync(currentUserId, currentUserId); // mismo ID
+                    return Ok(new { Message = "Tu cuenta y todas tus publicaciones han sido eliminadas permanentemente." });
+                }
+
+                // Caso 2: ADMIN puede eliminar cualquier cuenta → usar otro endpoint o parámetro
+                // Aquí solo permitimos que USER elimine su propia cuenta
+                return Forbid("Solo los administradores pueden eliminar cuentas de otros usuarios.");
+            }
+            catch (ArgumentException ex)
+            {
+                return NotFound(new { Message = ex.Message });
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Forbid(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"ERROR al eliminar cuenta: {ex.Message}");
                 return StatusCode(500, new { Message = "Error interno del servidor." });
             }
         }

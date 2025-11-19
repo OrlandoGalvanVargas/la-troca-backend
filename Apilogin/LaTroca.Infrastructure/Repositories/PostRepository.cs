@@ -44,5 +44,11 @@ namespace LaTroca.Infrastructure.Repositories
         {
             await _publicaciones.DeleteOneAsync(p => p.Id == id);
         }
+        // IMPLEMENTADO: Elimina TODAS las publicaciones del usuario
+        public async Task EliminarTodasPorUserIdAsync(string userId)
+        {
+            var filter = Builders<Post>.Filter.Eq(p => p.UserId, userId);
+            await _publicaciones.DeleteManyAsync(filter);
+        }
     }
 }

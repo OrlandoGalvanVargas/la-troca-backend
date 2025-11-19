@@ -2,6 +2,7 @@
 using Google.Apis.Auth;
 using LaTroca.Application.DTOs;
 using LaTroca.Application.Interfaces;
+using LaTroca.Domain.Interfaces;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -21,14 +22,16 @@ namespace TorneoUniversitario.Application.Services
 
         private readonly IUsuarioRepository _usuarioRepository;
         private readonly ICloudinaryService _cloudinaryService;
+        private readonly IPostRepository _postRepository;
         private readonly JwtSettings _jwtSettings;
         private static readonly string[] ValidRoles = { "ADMIN", "USER" };
 
-        public AuthService(IUsuarioRepository usuarioRepository, IOptions<JwtSettings> jwtSettings, ICloudinaryService cloudinaryService)
+        public AuthService(IUsuarioRepository usuarioRepository, IOptions<JwtSettings> jwtSettings, ICloudinaryService cloudinaryService,IPostRepository postRepository)
         {
             _usuarioRepository = usuarioRepository;
             _jwtSettings = jwtSettings.Value;
             _cloudinaryService = cloudinaryService;
+            _postRepository = postRepository;
         }
 
         public async Task<LoginResponse> LoginWithGoogleAsync(string googleIdToken)
@@ -187,7 +190,7 @@ namespace TorneoUniversitario.Application.Services
                 issuer: _jwtSettings.Issuer,
                 audience: _jwtSettings.Audience,
                 claims: claims,
-                expires: DateTime.UtcNow.AddHours(48),
+                expires: DateTime.UtcNow.AddDays(32),
                 signingCredentials: creds
             );
 
@@ -271,6 +274,27 @@ namespace TorneoUniversitario.Application.Services
             usuario.UpdatedAt = DateTime.UtcNow;
 
             await _usuarioRepository.UpdateAsync(usuario);
+        }
+        // En tu AuthService o crea un UserService
+        public async Task DeleteUserAccountAsync(string targetUserId, string requesterId)
+        {
+            var targetUser = await _usuarioRepository.GetByIdAsync(targetUserId);
+            if (targetUser == null)
+                throw new ArgumentException("Usuario no encontrado.");
+
+            // Regla: solo el propio usuario o un ADMIN puede eliminar
+            if (targetUserId != requesterId)
+            {
+                var requester = await _usuarioRepository.GetByIdAsync(requesterId);
+                if (requester?.Role != "ADMIN")
+                    throw new UnauthorizedAccessException("No tienes permiso para eliminar esta cuenta.");
+            }
+
+            // 1. Eliminar todas las publicaciones del usuario
+            await _postRepository.EliminarTodasPorUserIdAsync(targetUserId);
+
+            // 2. Eliminar el usuario
+            await _usuarioRepository.DeleteAsync(targetUserId);
         }
     }
 
