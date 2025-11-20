@@ -23,7 +23,9 @@ namespace LaTroca.Infrastructure.Services
             if (string.IsNullOrWhiteSpace(text))
                 return new ModerationResultDto { IsSafe = true, Message = "Texto vacío o nulo." };
 
-            
+            Console.WriteLine($"\n🤖 === ANÁLISIS HUGGINGFACE ===");
+            Console.WriteLine($"📝 Texto a analizar: '{text}'");
+
             string[] models =
             {
                 "unitary/toxic-bert",
@@ -40,6 +42,7 @@ namespace LaTroca.Infrastructure.Services
             string details = "";
 
             int wordCount = CountWords(text);
+            Console.WriteLine($"📊 Conteo de palabras: {wordCount}");
 
             foreach (var model in models)
             {
@@ -52,6 +55,7 @@ namespace LaTroca.Infrastructure.Services
 
                 if (!response.IsSuccessStatusCode)
                 {
+                    Console.WriteLine($"❌ Error con modelo {model}: {json}");
                     return new ModerationResultDto
                     {
                         IsSafe = false,
@@ -79,6 +83,11 @@ namespace LaTroca.Infrastructure.Services
                 Extract(doc.RootElement);
 
                 details += $"🔹 {model} → {string.Join(", ", resultsList.Select(r => $"{r.Label}: {(r.Score * 100):F1}%"))}\n";
+                Console.WriteLine($"🔹 {model}:");
+                foreach (var r in resultsList)
+                {
+                    Console.WriteLine($"   - {r.Label}: {(r.Score * 100):F2}%");
+                }
 
                 if (model.Contains("toxic"))
                 {
@@ -103,47 +112,71 @@ namespace LaTroca.Infrastructure.Services
             bool isSafe = true;
             string category = "Normal";
 
-            const double TOXIC_OFFENSIVE_THRESHOLD = 0.25;
-            const double OBSCENE_THRESHOLD = 0.15;
-            const double INSULT_THRESHOLD = 0.15;
-            const double NSFW_STRONG_THRESHOLD = 0.99; 
-            const double NSFW_MID_THRESHOLD = 0.55;
-            const double NSFW_WEAK_THRESHOLD = 0.30;
-            const int NSFW_WEAK_WORDCOUNT_MIN = 3;
+            // ✅ UMBRALES AJUSTADOS - Más conservadores para evitar falsos positivos
+            const double TOXIC_OFFENSIVE_THRESHOLD = 0.70;  // 70% (antes: 25%)
+            const double OBSCENE_THRESHOLD = 0.65;          // 65% (antes: 15%)
+            const double INSULT_THRESHOLD = 0.60;           // 60% (antes: 15%)
+            const double IDENTITY_HATE_THRESHOLD = 0.65;    // 65% (antes: 15%)
+            const double SEVERE_TOXIC_THRESHOLD = 0.50;     // 50% (antes: 10%)
+            const double THREAT_THRESHOLD = 0.60;           // 60% (antes: 10%)
+
+            const double NSFW_STRONG_THRESHOLD = 0.99;      // Sin cambio
+            const double NSFW_MID_THRESHOLD = 0.85;         // 85% (antes: 55%)
+            const double NSFW_WEAK_THRESHOLD = 0.70;        // 70% (antes: 30%)
+            const int NSFW_WEAK_WORDCOUNT_MIN = 5;          // 5 palabras (antes: 3)
+
+            Console.WriteLine($"\n📊 SCORES FINALES:");
+            Console.WriteLine($"   Toxic: {(toxicScore * 100):F2}% (umbral: {(TOXIC_OFFENSIVE_THRESHOLD * 100):F0}%)");
+            Console.WriteLine($"   Obscene: {(obsceneScore * 100):F2}% (umbral: {(OBSCENE_THRESHOLD * 100):F0}%)");
+            Console.WriteLine($"   Insult: {(insultScore * 100):F2}% (umbral: {(INSULT_THRESHOLD * 100):F0}%)");
+            Console.WriteLine($"   Identity Hate: {(identityHateScore * 100):F2}% (umbral: {(IDENTITY_HATE_THRESHOLD * 100):F0}%)");
+            Console.WriteLine($"   Severe Toxic: {(severeToxicScore * 100):F2}% (umbral: {(SEVERE_TOXIC_THRESHOLD * 100):F0}%)");
+            Console.WriteLine($"   Threat: {(threatScore * 100):F2}% (umbral: {(THREAT_THRESHOLD * 100):F0}%)");
+            Console.WriteLine($"   NSFW: {(nsfwScore * 100):F2}% (umbrales: {(NSFW_STRONG_THRESHOLD * 100):F0}%/{(NSFW_MID_THRESHOLD * 100):F0}%/{(NSFW_WEAK_THRESHOLD * 100):F0}%)");
 
             if (toxicScore >= TOXIC_OFFENSIVE_THRESHOLD ||
                 obsceneScore >= OBSCENE_THRESHOLD ||
                 insultScore >= INSULT_THRESHOLD ||
-                identityHateScore >= 0.15 ||
-                severeToxicScore >= 0.10 ||
-                threatScore >= 0.10)
+                identityHateScore >= IDENTITY_HATE_THRESHOLD ||
+                severeToxicScore >= SEVERE_TOXIC_THRESHOLD ||
+                threatScore >= THREAT_THRESHOLD)
             {
                 isSafe = false;
                 category = "Ofensivo";
+                Console.WriteLine($"❌ BLOQUEADO: Categoría {category}");
             }
             else
             {
-
+                // Solo bloquea NSFW si el score es MUY alto
                 if (nsfwScore >= NSFW_STRONG_THRESHOLD && wordCount >= 3)
                 {
                     isSafe = false;
                     category = "Sexual";
+                    Console.WriteLine($"❌ BLOQUEADO: NSFW Strong");
                 }
                 else if (nsfwScore >= NSFW_MID_THRESHOLD && wordCount >= 4)
                 {
                     isSafe = false;
                     category = "Sexual";
+                    Console.WriteLine($"❌ BLOQUEADO: NSFW Mid");
                 }
                 else if (nsfwScore >= NSFW_WEAK_THRESHOLD && wordCount >= NSFW_WEAK_WORDCOUNT_MIN)
                 {
                     isSafe = false;
                     category = "Sexual";
+                    Console.WriteLine($"❌ BLOQUEADO: NSFW Weak");
+                }
+                else
+                {
+                    Console.WriteLine($"✅ APROBADO: Texto seguro");
                 }
             }
 
             string message = isSafe
-                ? $"Texto seguro"
-                : $"Texto posiblemente inapropiado";
+                ? $"✅ Texto seguro"
+                : $"❌ Texto inapropiado ({category})";
+
+            Console.WriteLine($"🏁 RESULTADO FINAL: {message}\n");
 
             return new ModerationResultDto
             {
@@ -158,6 +191,5 @@ namespace LaTroca.Infrastructure.Services
             var tokens = text.Trim().Split(new char[] { ' ', '\t', '\n', '\r', ',', '.', ';', ':', '!', '?' }, StringSplitOptions.RemoveEmptyEntries);
             return tokens.Length;
         }
-
     }
 }
