@@ -10,7 +10,7 @@ namespace LaTroca.Application.Services
     {
         private readonly ProfanityDetector _detector;
         private readonly HashSet<string> _exactMatchProfanities;
-        private readonly HashSet<string> _allowedNames;
+        private readonly HashSet<string> _allowedWords; // 👈 CAMBIO: Ahora es "palabras permitidas" no solo nombres
 
         public TextModerationServices()
         {
@@ -30,23 +30,45 @@ namespace LaTroca.Application.Services
                 "bastardo", "perra", "perro", "tonto", "tonta",
                 "payaso", "payasa", "mamón", "mamona",
                 "verga", "vrga", "pito", "wey", "guey",
+                "joto", "jota", "pene", "vagina", "concha",
                 
-                // Groserías en inglés (pero NO incluimos "dick" porque es nombre común)
+                // Groserías en inglés
                 "fuck", "shit", "bitch", "asshole", "pussy", "cunt",
-                "motherfucker", "fucker", "damn", "bastard"
+                "motherfucker", "fucker", "damn", "bastard", "whore"
             };
 
-            // ✅ Lista blanca de nombres comunes que NO deben bloquearse
-            _allowedNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+            // ✅ Lista blanca: Palabras legítimas que el detector puede marcar incorrectamente
+            _allowedWords = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
             {
-                // Nombres en español
+                // Nombres comunes
                 "orlando", "gustavo", "sebastian", "cristian",
                 "salvador", "jesus", "angel", "marco", "marcos",
                 "arsenio", "kury", "javith", "centeno", "mucino",
-                
-                // Nombres en inglés que pueden ser confundidos
                 "dick", "randy", "anders", "peter", "richard",
-                "johnson", "wang", "cox", "ball", "peter"
+                "johnson", "wang", "cox", "ball",
+                
+                // Palabras comunes en español que pueden ser detectadas incorrectamente
+                "mujer", "mujeres", "hombre", "hombres",
+                "empoderada", "empoderado", "empoderamiento",
+                "sexo", "sexual", "sexualidad", // contexto educativo/identidad
+                "género", "genero", "trans", "transexual", "transgénero",
+                "gay", "lesbiana", "homosexual", "bisexual", "lgbtq",
+                "feminismo", "feminista", "machismo", "machista",
+                "aborto", "embarazo", "menstruación", "menstrual",
+                "mama", "mamá", "papa", "papá", "madre", "padre",
+                "negro", "negra", "blanco", "blanca", // colores/razas en contexto apropiado
+                "gorda", "gordo", "flaco", "flaca", "delgado", "delgada",
+                
+                // Palabras en inglés comunes
+                "woman", "women", "man", "men", "girl", "boy",
+                "gender", "sex", "sexuality", "sexual",
+                "gay", "lesbian", "bisexual", "transgender",
+                "black", "white", "brown", "asian",
+                "fat", "thin", "skinny", "thick",
+                
+                // Palabras relacionadas con trueque/comercio
+                "intercambio", "trueque", "cambio", "permuta",
+                "vender", "comprar", "precio", "gratis", "dinero"
             };
         }
 
@@ -59,60 +81,70 @@ namespace LaTroca.Application.Services
             var normalized = NormalizeText(text);
 
             // 🔹 LOG para debugging
-            Console.WriteLine($"🔍 MODERACIÓN DE TEXTO:");
-            Console.WriteLine($"   Original: {text}");
-            Console.WriteLine($"   Normalizado: {normalized}");
+            Console.WriteLine($"\n🔍 === MODERACIÓN DE TEXTO ===");
+            Console.WriteLine($"   📝 Original: {text}");
+            Console.WriteLine($"   🔄 Normalizado: {normalized}");
 
-            // 🔹 Verifica si TODO el texto normalizado es un nombre permitido
-            if (_allowedNames.Contains(normalized))
+            // 🔹 Verifica si TODO el texto normalizado es una palabra permitida
+            if (_allowedWords.Contains(normalized))
             {
-                Console.WriteLine($"   ✅ PERMITIDO: Nombre completo en lista blanca");
+                Console.WriteLine($"   ✅ PERMITIDO: Texto completo en lista blanca");
                 return true;
             }
 
             // 🔹 Divide en palabras
             var words = normalized.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            Console.WriteLine($"   📊 Total palabras: {words.Length}");
 
             // 🔹 Verifica cada palabra COMPLETA
             foreach (var word in words)
             {
-                Console.WriteLine($"   🔎 Analizando palabra: '{word}'");
+                Console.WriteLine($"\n   🔎 Analizando: '{word}'");
 
-                // Ignora iniciales (ej: "G", "V", "J")
-                if (word.Length <= 1)
+                // Ignora iniciales, números, palabras muy cortas
+                if (word.Length <= 1 || int.TryParse(word, out _))
                 {
-                    Console.WriteLine($"      ↪️ Ignorada (inicial de 1 letra)");
+                    Console.WriteLine($"      ↪️ Ignorada (inicial/número)");
                     continue;
                 }
 
                 // ✅ PRIMERO: Verifica si la palabra está en la lista blanca
-                if (_allowedNames.Contains(word))
+                if (_allowedWords.Contains(word))
                 {
-                    Console.WriteLine($"      ✅ Permitida (en lista blanca)");
+                    Console.WriteLine($"      ✅ Permitida (lista blanca)");
                     continue;
                 }
 
-                // Verifica si la palabra está en nuestra lista de groserías
+                // ❌ SEGUNDO: Verifica si es una grosería exacta
                 if (_exactMatchProfanities.Contains(word))
                 {
-                    Console.WriteLine($"   ❌ BLOQUEADO: '{word}' es una grosería exacta");
+                    Console.WriteLine($"   ❌ BLOQUEADO: '{word}' es grosería exacta");
                     return false;
                 }
 
-                // Solo usamos el detector como apoyo secundario
+                // ⚠️ TERCERO: Usa el detector como última verificación
                 bool isProfane = await Task.Run(() => _detector.IsProfane(word));
                 if (isProfane)
                 {
                     Console.WriteLine($"      ⚠️ Detector marcó '{word}' como profanidad");
 
-                    // Verificación adicional: palabras muy cortas suelen ser falsos positivos
+                    // Palabras cortas (3 letras o menos) son casi siempre falsos positivos
                     if (word.Length <= 3)
                     {
-                        Console.WriteLine($"      ↪️ Ignorada (palabra muy corta, probablemente falso positivo)");
+                        Console.WriteLine($"      ↪️ Ignorada (muy corta, falso positivo probable)");
                         continue;
                     }
 
-                    Console.WriteLine($"   ❌ BLOQUEADO: '{word}' detectado como profanidad por detector externo");
+                    // Palabras entre 4-5 letras: verificar si son comunes antes de bloquear
+                    if (word.Length <= 5)
+                    {
+                        Console.WriteLine($"      ⚠️ Palabra corta marcada - revisión manual recomendada");
+                        Console.WriteLine($"      ↪️ Permitida por ahora (palabra corta, posible falso positivo)");
+                        continue;
+                    }
+
+                    // Solo bloqueamos si es una palabra larga y el detector está seguro
+                    Console.WriteLine($"   ❌ BLOQUEADO: '{word}' detectada como profanidad (palabra larga)");
                     return false;
                 }
 
@@ -122,18 +154,19 @@ namespace LaTroca.Application.Services
             // 🔹 Verificación de groserías como frases completas
             if (words.Length > 1)
             {
+                Console.WriteLine($"\n   🔍 Verificando frases completas...");
                 foreach (var badWord in _exactMatchProfanities)
                 {
                     var pattern = $@"\b{Regex.Escape(badWord)}\b";
                     if (Regex.IsMatch(normalized, pattern, RegexOptions.IgnoreCase))
                     {
-                        Console.WriteLine($"   ❌ BLOQUEADO: '{badWord}' encontrado como palabra completa en frase");
+                        Console.WriteLine($"   ❌ BLOQUEADO: '{badWord}' encontrado como palabra completa");
                         return false;
                     }
                 }
             }
 
-            Console.WriteLine($"   ✅ TEXTO SEGURO - Aprobado");
+            Console.WriteLine($"\n   ✅ RESULTADO: TEXTO SEGURO - Aprobado\n");
             return true;
         }
 
