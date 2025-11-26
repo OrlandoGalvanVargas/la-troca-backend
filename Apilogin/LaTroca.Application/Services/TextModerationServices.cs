@@ -57,7 +57,7 @@ namespace LaTroca.Application.Services
                 "aborto", "embarazo", "menstruación", "menstrual",
                 "mama", "mamá", "papa", "papá", "madre", "padre",
                 "negro", "negra", "blanco", "blanca", // colores/razas en contexto apropiado
-                "gorda", "gordo", "flaco", "flaca", "delgado", "delgada",
+                "gorda", "gordo", "flaco", "flaca", "delgado", "delgada", "muebles", "mueble",
                 
                 // Palabras en inglés comunes
                 "woman", "women", "man", "men", "girl", "boy",
